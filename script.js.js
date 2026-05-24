@@ -1,7 +1,7 @@
 // ===== FMIS DASHBOARD — SCRIPT DENGAN API INTEGRATION =====
 
 // Konfigurasi
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyMr8yFPUbJ8qK0bKDk23t9URwmUdwFK5aeE_wa0Xwki-a0SI80iLDAwTCAp3gVwQ8NFw/exec';
 
 // Progress mapping (SAME AS BEFORE)
 const PROG_KEY = s => {

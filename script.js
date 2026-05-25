@@ -1,4 +1,4 @@
-// ===== FMIS DASHBOARD — SCRIPT GLOBAL MANAGEMENT =====
+// ===== FMIS DASHBOARD — SCRIPT LENGKAP DENGAN API INTEGRATION =====
 
 // ── Progress mapping ──────────────────────────────────────────────────────
 const PROG_KEY = s => {
@@ -17,77 +17,26 @@ const PROG_COLOR = {'01':'#4B5563','02':'#EF4444','03':'#EAB308','04':'#22C55E',
 
 // ── State ─────────────────────────────────────────────────────────────────
 let allData    = [];
-let filterMode = 'all'; 
+let filterMode = 'all'; // Menyimpan mode: 'all', 'backlog', 'bukan', atau kode progress ('01'-'05')
 let searchKey  = '';
 let sortCol    = 'No';
 let sortDir    = 1;
 
-// ── Helper UI & Tanggal ───────────────────────────────────────────────────
-const $ = id => document.getElementById(id);
-const f1 = n => (Math.round(n * 10) / 10).toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-const pct = (a, b) => b > 0 ? ((a / b) * 100).toFixed(1) : '0.0';
-
-function showLoading(v) { 
-  const el = $('loading');
-  if (el) el.style.display = v ? 'flex' : 'none';
-}
-
+// ── Helper functions untuk merapikan tanggal ──────────────────────────────
 function formatNumericDate(dateStr) {
   if (!dateStr || dateStr === '-') return '-';
   try {
     const date = new Date(dateStr);
     if (isNaN(date.getTime())) return dateStr;
+    
     const d = String(date.getDate()).padStart(2, '0');
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const y = date.getFullYear();
-    return `${d}-${m}-${y}`;
+    
+    return `${d}-${m}-${y}`; // Hasil akhir singkat: 12-05-2026
   } catch (e) {
     return dateStr;
   }
-}
-
-// ── Inisialisasi Event Listener Kontrol Dashboard ─────────────────────────
-function initDashboardControls() {
-  const searchInput = $('search-input');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      searchKey = e.target.value;
-      renderTable();
-    });
-  }
-
-  const tabs = document.querySelectorAll('.filter-tab');
-  tabs.forEach(tab => {
-    tab.addEventListener('click', (e) => {
-      tabs.forEach(t => t.classList.remove('active'));
-      e.currentTarget.classList.add('active');
-      filterMode = e.currentTarget.dataset.f; 
-      renderTable();
-    });
-  });
-
-  document.querySelectorAll('.main-tbl th[data-col]').forEach(th => {
-    th.addEventListener('click', () => {
-      const c = th.dataset.col;
-      if (sortCol === c) {
-        sortDir *= -1;
-      } else {
-        sortCol = c;
-        sortDir = 1;
-      }
-      document.querySelectorAll('.main-tbl th').forEach(t => {
-        t.classList.remove('sorted');
-        const arr = t.querySelector('.sort-arr');
-        if (arr) arr.remove();
-      });
-      th.classList.add('sorted');
-      const sp = document.createElement('span');
-      sp.className = 'sort-arr';
-      sp.textContent = sortDir === 1 ? ' ▲' : ' ▼';
-      th.appendChild(sp);
-      renderTable();
-    });
-  });
 }
 
 // ── CSV Parser ────────────────────────────────────────────────────────────
@@ -113,7 +62,7 @@ function parseCSV(rows) {
       COOR: row['COOR'] || '-',
       ProgPct: parseFloat(row['Prog(%)']) || 0,
       QCPct: parseFloat(row['QC(%)']) || 0,
-      DL: formatNumericDate(row['DATELINE']), 
+      DL: formatNumericDate(row['DATELINE']), // Tanggal otomatis dipotong singkat disini
       Komit: row['Komitmen 22'] || '-',
       isBacklog: bl === 'Backlog1' || bl === 'Backlog2' || bl === 'Backlog3',
       pk,
@@ -121,7 +70,17 @@ function parseCSV(rows) {
   });
 }
 
-// ── Render Dashboard UI ───────────────────────────────────────────────────
+// ── Helper UI ─────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const f1 = n => (Math.round(n * 10) / 10).toFixed(1).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+const pct = (a, b) => b > 0 ? ((a / b) * 100).toFixed(1) : '0.0';
+
+function showLoading(v) { 
+  const el = $('loading');
+  if (el) el.style.display = v ? 'flex' : 'none';
+}
+
+// ── Render All ────────────────────────────────────────────────────────────
 function renderAll() {
   const bl = allData.filter(r => r.isBacklog);
   const bk = allData.filter(r => !r.isBacklog);
@@ -129,6 +88,7 @@ function renderAll() {
   const bkH = bk.reduce((s, r) => s + r.Luas, 0);
   const gtH = blH + bkH;
 
+  // KPI Cards
   if ($('v-bl-ha')) $('v-bl-ha').innerHTML = `${f1(blH)} <span class="unit">ha</span>`;
   if ($('v-bl-ct')) $('v-bl-ct').textContent = `${bl.length} petak`;
   if ($('v-bl-pct')) $('v-bl-pct').textContent = `${pct(blH, gtH)}% dari total`;
@@ -143,6 +103,7 @@ function renderAll() {
 
   renderGtArc(blH, bkH, gtH);
 
+  // Proporsi bar
   const blPct = gtH > 0 ? (blH / gtH) * 100 : 0;
   if ($('ov-fill')) $('ov-fill').style.width = blPct + '%';
   if ($('ov-legend')) {
@@ -151,6 +112,7 @@ function renderAll() {
       <span class="ov-leg-item"><span class="ov-dot" style="background:#10B981"></span>Bukan BL: ${f1(bkH)} ha (${(100 - blPct).toFixed(1)}%)</span>`;
   }
 
+  // Kategori KPI Backlog 1, 2, 3
   ['Backlog1', 'Backlog2', 'Backlog3'].forEach((cat, i) => {
     const idx = i + 1;
     const rows = bl.filter(r => r.Backlog === cat);
@@ -160,23 +122,32 @@ function renderAll() {
     if ($(`v-b${idx}-pct`)) $(`v-b${idx}-pct`).textContent = `${pct(ha, blH)}% backlog`;
   });
 
+  // Charts
   renderBarChart('coor-chart', 'COOR');
   renderBarChart('spv-chart', 'SPV');
 
+  // Ringkasan Cepat
   if ($('rk-total-ha')) $('rk-total-ha').textContent = f1(gtH) + ' ha';
   if ($('rk-total-pk')) $('rk-total-pk').textContent = allData.length;
   if ($('rk-bl-pk')) $('rk-bl-pk').textContent = bl.length;
   if ($('rk-bk-pk')) $('rk-bk-pk').textContent = bk.length;
 
+  // Donut & Legend
   renderDonut();
+
+  // Alert
   renderAlert(bl, bk, gtH, blH);
+
+  // Table Utama
   renderTable();
 
+  // Update topbar time
   const now = new Date();
   const opts = { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
   if ($('topbar-update')) $('topbar-update').textContent = '⟳ Update Terakhir: ' + now.toLocaleDateString('id-ID', opts) + ' WIB';
 }
 
+// ── Grand Total pie arc ─────────────────────────────────────────────────────
 function renderGtArc(blH, bkH, gtH) {
   if (!gtH) return;
   const cx = 50, cy = 50, r = 38;
@@ -191,12 +162,13 @@ function renderGtArc(blH, bkH, gtH) {
     return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`;
   }
 
-  const blEl = $('gt-arc-bl');
-  const bkEl = $('gt-arc-bk');
+  const blEl = document.getElementById('gt-arc-bl');
+  const bkEl = document.getElementById('gt-arc-bk');
   if (blEl) blEl.setAttribute('d', arcPath(0, blAngle));
   if (bkEl) bkEl.setAttribute('d', arcPath(blAngle, 360));
 }
 
+// ── Stacked bar chart ─────────────────────────────────────────────────────
 function renderBarChart(elId, groupKey) {
   const map = {};
   allData.forEach(r => {
@@ -207,7 +179,7 @@ function renderBarChart(elId, groupKey) {
   });
   const arr = Object.entries(map).map(([k, v]) => ({ name: k, ...v })).sort((a, b) => b.total - a.total);
   const maxT = Math.max(...arr.map(a => a.total), 1);
-  const container = $(elId);
+  const container = document.getElementById(elId);
   if (!container) return;
   
   container.innerHTML = arr.length ? arr.map(item => {
@@ -226,6 +198,7 @@ function renderBarChart(elId, groupKey) {
   }).join('') : '<div class="no-data">Tidak ada data</div>';
 }
 
+// ── Progress Status Donut dengan Fitur Filter Klik ────────────────────────
 function renderDonut() {
   const statusMap = {};
   allData.forEach(r => {
@@ -238,7 +211,7 @@ function renderDonut() {
 
   const cx = 60, cy = 60, r = 45, strokeW = 18;
   const circ = 2 * Math.PI * r;
-  const svg = $('donut-svg');
+  const svg = document.getElementById('donut-svg');
   if (!svg) return;
   
   svg.querySelectorAll('.donut-seg').forEach(el => el.remove());
@@ -249,7 +222,7 @@ function renderDonut() {
   }));
 
   let cumulOffset = circ * 0.25;
-  const legend = $('donut-legend');
+  const legend = document.getElementById('donut-legend');
   if (legend) legend.innerHTML = '';
 
   segments.forEach(seg => {
@@ -267,6 +240,7 @@ function renderDonut() {
     circle.setAttribute('stroke-dashoffset', cumulOffset);
     circle.setAttribute('stroke-linecap', 'butt');
     
+    // Klik pada busur Donut Chart untuk memfilter progress status
     circle.style.cursor = 'pointer';
     circle.addEventListener('click', () => {
       filterMode = seg.key;
@@ -288,6 +262,7 @@ function renderDonut() {
     }
   });
 
+  // Klik pada baris list legenda teks untuk memfilter progress status
   if (legend) {
     legend.querySelectorAll('.donut-row-clickable').forEach(row => {
       row.addEventListener('click', (e) => {
@@ -299,12 +274,14 @@ function renderDonut() {
   }
 }
 
+// ── Alert & Insight ───────────────────────────────────────────────────────
 function renderAlert(bl, bk, gtH, blH) {
   const overdue = allData.filter(r => r.Hari < 0);
   const avgOverdue = overdue.length ? Math.round(overdue.reduce((s, r) => s + Math.abs(r.Hari), 0) / overdue.length) : 0;
   if ($('alert-avg-hari')) $('alert-avg-hari').textContent = avgOverdue || '—';
 
   const alerts = [];
+
   const coorMap = {};
   bl.forEach(r => {
     const c = r.COOR || '-';
@@ -338,18 +315,20 @@ function renderAlert(bl, bk, gtH, blH) {
   }
 }
 
-// ── Table Render & Pengurutan ─────────────────────────────────────────────
+// ── Table Render & Filter Logic ───────────────────────────────────────────
 function renderTable() {
   let rows = [...allData];
 
+  // Eksekusi filter berdasarkan mode tab ataupun pilihan status donut chart
   if (filterMode === 'backlog') {
     rows = rows.filter(r => r.isBacklog);
   } else if (filterMode === 'bukan') {
     rows = rows.filter(r => !r.isBacklog);
   } else if (['01', '02', '03', '04', '05'].includes(filterMode)) {
-    rows = rows.filter(r => r.pk === filterMode);
+    rows = rows.filter(r => r.pk === filterMode); // Filter berdasarkan status '01', '02' dsb.
   }
 
+  // Saring berdasarkan keyword input pencarian
   if (searchKey) {
     const q = searchKey.toLowerCase();
     rows = rows.filter(r =>
@@ -361,6 +340,7 @@ function renderTable() {
     );
   }
 
+  // Pengurutan (Sorting) Kolom
   rows.sort((a, b) => {
     let va = a[sortCol], vb = b[sortCol];
     if (['No', 'Luas', 'Hari'].includes(sortCol)) {
@@ -411,11 +391,32 @@ function renderTable() {
       </tr>`;
     }).join('');
   }
+
+  // Pasang ulang trigger sort pada header kolom table
+  document.querySelectorAll('.main-tbl th[data-col]').forEach(th => {
+    th.onclick = () => {
+      const c = th.dataset.col;
+      if (sortCol === c) sortDir *= -1;
+      else { sortCol = c; sortDir = 1; }
+      document.querySelectorAll('.main-tbl th').forEach(t => {
+        t.classList.remove('sorted');
+        const arr = t.querySelector('.sort-arr');
+        if (arr) arr.remove();
+      });
+      th.classList.add('sorted');
+      const sp = document.createElement('span');
+      sp.className = 'sort-arr';
+      sp.textContent = sortDir === 1 ? '▲' : '▼';
+      th.appendChild(sp);
+      renderTable();
+    };
+  });
 }
 
-// ── Fetch Data API & Authentication ───────────────────────────────────────
+// ── Fetch Data dari Apps Script API ───────────────────────────────────────
 async function loadCSVFromAPI() {
   showLoading(true);
+  
   try {
     const token = localStorage.getItem('fmis_token');
     if (!token) throw new Error('No auth token');
@@ -436,73 +437,19 @@ async function loadCSVFromAPI() {
     allData = [];
     renderAll();
   }
+  
   showLoading(false);
 }
 
 function showToastMsg(msg, type = 'ok') {
-  const toast = $('toast');
+  const toast = document.getElementById('toast');
   if (!toast) return;
   toast.textContent = msg;
   toast.className = `toast ${type} show`;
   setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-async function handleLogin(e) {
-  e.preventDefault();
-  const u = $('username').value;
-  const p = $('password').value;
-  const err = $('loginError');
-  err.style.display = 'none';
-  showLoading(true);
-  try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`);
-    const r = await res.json();
-    if (r.success) {
-      authToken = r.token;
-      currentUser = r.username;
-      localStorage.setItem('fmis_token', r.token);
-      localStorage.setItem('fmis_user', r.username);
-      loadDashboard();
-    } else {
-      err.textContent = r.error || 'Login gagal';
-      err.style.display = 'block';
-    }
-  } catch (error) {
-    err.textContent = 'Koneksi gagal. Periksa jaringan Anda.';
-    err.style.display = 'block';
-  }
-  showLoading(false);
-}
-
-function logout() {
-  localStorage.removeItem('fmis_token');
-  localStorage.removeItem('fmis_user');
-  authToken = null;
-  currentUser = null;
-  $('loginContainer').style.display = 'flex';
-  $('dashboardWrapper').style.display = 'none';
-}
-
-async function loadDashboard() {
-  $('loginContainer').style.display = 'none';
-  $('dashboardWrapper').style.display = 'block';
-  initDashboardControls(); // Kontrol dipasang TEPAT sebelum merender tabel
-  await loadCSVFromAPI();
-}
-
-// Handler Pengecekan Sesi Login Otomatis saat Window Siap
-document.addEventListener('DOMContentLoaded', () => {
-  const tok = localStorage.getItem('fmis_token');
-  if (tok) {
-    authToken = tok;
-    currentUser = localStorage.getItem('fmis_user');
-    loadDashboard();
-  }
-});
-
 window.loadCSVFromAPI = loadCSVFromAPI;
-window.handleLogin = handleLogin;
-window.logout = logout;
 
 // Auto-refresh data otomatis dari server setiap 10 menit
 setInterval(() => {
@@ -510,3 +457,35 @@ setInterval(() => {
     loadCSVFromAPI();
   }
 }, 10 * 60 * 1000);
+
+
+// ── INISIALISASI EVENT LISTENERS KONTROL UTAMA ────────────────────────────
+function initDashboardControls() {
+  // 1. Handler Real-time Input Kotak Pencarian
+  const searchInput = document.getElementById('search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchKey = e.target.value;
+      renderTable();
+    });
+  }
+
+  // 2. Handler Navigasi Tab Utama Atas (Semua, Backlog, Bukan BL)
+  const tabs = document.querySelectorAll('.filter-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      tabs.forEach(t => t.classList.remove('active'));
+      e.currentTarget.classList.add('active');
+      
+      filterMode = e.currentTarget.dataset.f; // Nilai 'all', 'backlog', atau 'bukan'
+      renderTable();
+    });
+  });
+}
+
+// Jalankan inisialisasi kontrol dashboard setelah DOM siap
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initDashboardControls);
+} else {
+  initDashboardControls();
+}

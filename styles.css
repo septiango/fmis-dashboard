@@ -234,7 +234,7 @@ body {
 }
 .leg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
 
-/* ===== FILTER BAR ===== */
+/* ===== FILTER BAR & BUTTONS ===== */
 .filter-bar {
   background: var(--card);
   border-radius: var(--r);
@@ -267,6 +267,17 @@ body {
 .filter-tab:hover:not(.active) { border-color: var(--accent); color: var(--text); }
 .row-count { font-size: 10px; color: var(--text3); margin-top: 6px; font-weight: 600; }
 
+/* STYLE TOMBOL EXPORT BARU */
+.export-row { display: flex; gap: 5px; }
+.btn-export {
+  background: var(--bg2); color: var(--text); border: 1px solid var(--border2);
+  border-radius: var(--r-sm); padding: 5px 10px; font-size: 10px; font-weight: 600;
+  cursor: pointer; display: flex; align-items: center; gap: 4px; transition: all 0.2s;
+}
+.btn-export:hover {
+  background: var(--bg3); border-color: var(--accent); color: var(--accent);
+}
+
 /* ===== DETAIL TABLE ===== */
 .table-outer {
   background: var(--card);
@@ -281,14 +292,14 @@ table.main-tbl {
   width: 100%;
   border-collapse: collapse;
   font-size: 11px;
-  min-width: 580px; /* Diperkecil agar lebih pas */
+  min-width: 580px; 
 }
 table.main-tbl thead tr {
   background: var(--bg3);
   border-bottom: 1px solid var(--border2);
 }
 table.main-tbl th {
-  padding: 5px 4px; /* DIUBAH: Jarak dalam sel dipepetkan */
+  padding: 5px 4px;
   font-size: 8.5px; font-weight: 700; letter-spacing: 0.08em;
   text-transform: uppercase; white-space: nowrap;
   text-align: left; color: var(--text2);
@@ -301,8 +312,6 @@ table.main-tbl th.sorted { color: var(--accent); }
 table.main-tbl tbody tr { border-bottom: 1px solid var(--border); }
 table.main-tbl tbody tr:last-child { border-bottom: none; }
 table.main-tbl tbody tr:hover { background: rgba(255,255,255,0.03) !important; }
-
-/* DIUBAH: Jarak dalam sel tabel utama dipepetkan */
 table.main-tbl td { padding: 4px 4px; vertical-align: middle; white-space: nowrap; }
 
 .row-bl:nth-child(odd)  { background: rgba(239,68,68,.025); }
@@ -419,7 +428,7 @@ table.main-tbl td { padding: 4px 4px; vertical-align: middle; white-space: nowra
 .alert-dot.yellow { background: rgba(245,158,11,.2); }
 .alert-dot.orange { background: rgba(249,115,22,.2); }
 
-/* ===== LOADING ===== */
+/* ===== LOADING & TOAST ===== */
 .loading-overlay {
   display: none; position: fixed; inset: 0;
   background: rgba(13,17,23,0.88); z-index: 200;
@@ -432,8 +441,6 @@ table.main-tbl td { padding: 4px 4px; vertical-align: middle; white-space: nowra
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-text { font-size: 12px; font-weight: 600; color: var(--text2); }
-
-/* ===== TOAST ===== */
 .toast {
   position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(60px);
   background: var(--bg2); color: var(--text); border-radius: 8px;
@@ -450,7 +457,6 @@ table.main-tbl td { padding: 4px 4px; vertical-align: middle; white-space: nowra
   text-align: center; font-size: 10px; color: var(--text3);
   padding: 16px 12px; border-top: 1px solid var(--border); margin-top: 12px;
 }
-.footer code { background: var(--bg3); padding: 1px 5px; border-radius: 3px; font-size: 10px; }
 
 /* ===== NO DATA ===== */
 .no-data { text-align: center; padding: 24px 12px; color: var(--text3); font-size: 12px; }
@@ -483,17 +489,14 @@ table.main-tbl td { padding: 4px 4px; vertical-align: middle; white-space: nowra
   .kpi-card.k-b3 { grid-column: 1 / -1; }
 }
 
-
 /* ========================================================== */
 /* ========== MODIFIKASI: STICKY COLUMN (FREEZE) ============ */
 /* ========================================================== */
 
-/* DIUBAH: Lebar kolom sticky diperkecil dan jarak kiri diatur ulang agar saling menempel */
 table.main-tbl th.col-keyid, table.main-tbl td.col-keyid { min-width: 75px; max-width: 75px; position: sticky; left: 0; z-index: 12; }
 table.main-tbl th.col-luas,  table.main-tbl td.col-luas  { min-width: 50px; max-width: 50px; position: sticky; left: 75px; z-index: 12; text-align: right; }
 table.main-tbl th.col-act,   table.main-tbl td.col-act   { min-width: 110px; max-width: 110px; position: sticky; left: 125px; z-index: 12; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-right: 1px solid var(--border); }
 
-/* Latar belakang th khusus freeze */
 table.main-tbl th.col-keyid, 
 table.main-tbl th.col-luas, 
 table.main-tbl th.col-act {
@@ -501,7 +504,6 @@ table.main-tbl th.col-act {
   z-index: 15;
 }
 
-/* Penanganan Warna Background td Saat Sticky */
 table.main-tbl tbody tr:nth-child(odd).row-bl td.col-keyid,
 table.main-tbl tbody tr:nth-child(odd).row-bl td.col-luas,
 table.main-tbl tbody tr:nth-child(odd).row-bl td.col-act { background: #1a161b; }
@@ -518,10 +520,85 @@ table.main-tbl tbody tr:nth-child(even).row-bk td.col-keyid,
 table.main-tbl tbody tr:nth-child(even).row-bk td.col-luas,
 table.main-tbl tbody tr:nth-child(even).row-bk td.col-act { background: #151c1e; }
 
-/* Hover Khusus Freeze Columns */
 table.main-tbl tbody tr:hover td.col-keyid,
 table.main-tbl tbody tr:hover td.col-luas,
-table.main-tbl tbody tr:hover td.col-act {
-  background: #232a3b !important;
-}
+table.main-tbl tbody tr:hover td.col-act { background: #232a3b !important; }
+
+
 /* ========================================================== */
+/* ========== FITUR CETAK (PRINT & PDF) COMPACT ============= */
+/* ========================================================== */
+@media print {
+  /* Paksa tampilan jadi cerah agar teks hitam jelas di PDF */
+  body { 
+    background: #ffffff !important; 
+    color: #000000 !important; 
+    -webkit-print-color-adjust: exact; 
+    print-color-adjust: exact; 
+  }
+
+  /* Sembunyikan SEMUA elemen grafis, chart, dan tombol saat diprint */
+  #loginContainer, .topbar, .kpi-row, .overview-wrap, .sec-head, 
+  .legend-strip, .charts-grid, .bottom-grid, .alert-card, .footer, 
+  .loading-overlay, .toast, .search-wrap, .tab-row, .export-row {
+    display: none !important;
+  }
+
+  /* Reset jarak pada container tabel agar mentok ke tepi */
+  .wrap { 
+    padding: 0 !important; 
+    margin: 0 !important; 
+    max-width: 100% !important; 
+  }
+  .filter-bar { 
+    border: none !important; 
+    box-shadow: none !important; 
+    background: transparent !important; 
+    padding: 0 0 10px 0 !important;
+    margin: 0 !important;
+  }
+  .table-outer { 
+    border: 1px solid #333 !important; 
+    box-shadow: none !important; 
+    margin: 0 !important; 
+  }
+
+  /* Membuat Tabel Sangat Rapat/Compact Untuk Print */
+  table.main-tbl { 
+    min-width: 100% !important; 
+    border-collapse: collapse !important; 
+  }
+  table.main-tbl th, table.main-tbl td { 
+    padding: 3px !important; 
+    font-size: 8px !important; 
+    border: 1px solid #ccc !important;
+    color: #000 !important;
+    white-space: normal !important; /* Biarkan teks membungkus (wrap) di PDF */
+    word-break: break-word;
+  }
+  table.main-tbl th { 
+    background: #f0f0f0 !important; 
+    color: #000 !important; 
+    text-align: center !important;
+  }
+
+  /* Lepas freeze (sticky) saat dicetak agar tabel dirender utuh dan tidak saling tumpuk */
+  table.main-tbl th.col-keyid, table.main-tbl td.col-keyid,
+  table.main-tbl th.col-luas, table.main-tbl td.col-luas,
+  table.main-tbl th.col-act, table.main-tbl td.col-act {
+    position: static !important;
+    background: transparent !important;
+  }
+
+  /* Format teks subtotal dan tulisan petak agar jelas */
+  #subtotal-luas, .row-count { 
+    color: #000 !important; 
+    font-size: 10px !important; 
+  }
+
+  /* Aturan format halaman untuk HP (Portrait A4) dengan margin tipis */
+  @page { 
+    size: A4 portrait; 
+    margin: 8mm; 
+  }
+}

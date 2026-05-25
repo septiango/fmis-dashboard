@@ -151,8 +151,8 @@
         </div>
         
         <div class="export-row">
-          <button class="btn-export" onclick="window.print()" title="Export ke PDF">📄 PDF</button>
-          <button class="btn-export" onclick="window.print()" title="Print Tabel">🖨️ Print</button>
+          <button class="btn-export" onclick="exportPDF()" title="Export PDF Warna (Digital)">📄 PDF</button>
+          <button class="btn-export" onclick="printBWTabel()" title="Print Hitam Putih (Kertas)">🖨️ Print</button>
         </div>
       </div>
 
@@ -201,7 +201,24 @@
 <script src="script.js"></script>
 
 <script>
-// ===== KONFIGURASI =====
+// ===== SCRIPT FUNGSI EKSPOR PRINT (PDF & BLACK-WHITE) =====
+function exportPDF() {
+  // Membersihkan class bw jika sebelumnya dipakai
+  document.body.classList.remove('print-bw-mode');
+  window.print();
+}
+
+function printBWTabel() {
+  // Menambahkan class untuk mengubah mode cetak jadi hitam putih (irit tinta)
+  document.body.classList.add('print-bw-mode');
+  window.print();
+  // Menghapus class segera setelah dialog window.print() tertutup agar layar kembali normal
+  setTimeout(() => {
+    document.body.classList.remove('print-bw-mode');
+  }, 1000);
+}
+
+// ===== KONFIGURASI LOGIN =====
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJwzBiW8CwIIslkX3TOH0dQBWFKjT0RnxK6fyDMHxf_hwEdjJ4uopchg8JLfUk8lDXQA/exec';
 
 let authToken = null;

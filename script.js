@@ -33,7 +33,7 @@ function formatNumericDate(dateStr) {
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const y = date.getFullYear();
     
-    return `${d}-${m}-${y}`; // Hasil akhir singkat: 12-05-2026
+    return `${d}-${m}-${y}`; 
   } catch (e) {
     return dateStr;
   }
@@ -46,6 +46,13 @@ function parseCSV(rows) {
     const luas = parseFloat(row['Luas']) || 0;
     const hari = parseInt(row['Hari']) || 0;
     const pk = PROG_KEY(row['Progress Status']);
+    
+    // Sortir spesifik untuk tanggal (Numerik Milliseconds)
+    let dlSort = 0;
+    if (row['DATELINE'] && row['DATELINE'] !== '-') {
+      const d = new Date(row['DATELINE']);
+      if (!isNaN(d.getTime())) dlSort = d.getTime();
+    }
     
     return {
       No: idx + 1,
@@ -62,7 +69,8 @@ function parseCSV(rows) {
       COOR: row['COOR'] || '-',
       ProgPct: parseFloat(row['Prog(%)']) || 0,
       QCPct: parseFloat(row['QC(%)']) || 0,
-      DL: formatNumericDate(row['DATELINE']), // Tanggal otomatis dipotong singkat disini
+      DL: formatNumericDate(row['DATELINE']), 
+      DL_sort: dlSort,
       Komit: row['Komitmen 22'] || '-',
       isBacklog: bl === 'Backlog1' || bl === 'Backlog2' || bl === 'Backlog3',
       pk,
@@ -240,7 +248,6 @@ function renderDonut() {
     circle.setAttribute('stroke-dashoffset', cumulOffset);
     circle.setAttribute('stroke-linecap', 'butt');
     
-    // Klik pada busur Donut Chart untuk memfilter progress status
     circle.style.cursor = 'pointer';
     circle.addEventListener('click', () => {
       filterMode = seg.key;
@@ -262,7 +269,6 @@ function renderDonut() {
     }
   });
 
-  // Klik pada baris list legenda teks untuk memfilter progress status
   if (legend) {
     legend.querySelectorAll('.donut-row-clickable').forEach(row => {
       row.addEventListener('click', (e) => {
@@ -319,16 +325,14 @@ function renderAlert(bl, bk, gtH, blH) {
 function renderTable() {
   let rows = [...allData];
 
-  // Eksekusi filter berdasarkan mode tab ataupun pilihan status donut chart
   if (filterMode === 'backlog') {
     rows = rows.filter(r => r.isBacklog);
   } else if (filterMode === 'bukan') {
     rows = rows.filter(r => !r.isBacklog);
   } else if (['01', '02', '03', '04', '05'].includes(filterMode)) {
-    rows = rows.filter(r => r.pk === filterMode); // Filter berdasarkan status '01', '02' dsb.
+    rows = rows.filter(r => r.pk === filterMode);
   }
 
-  // Saring berdasarkan keyword input pencarian
   if (searchKey) {
     const q = searchKey.toLowerCase();
     rows = rows.filter(r =>
@@ -340,10 +344,10 @@ function renderTable() {
     );
   }
 
-  // Pengurutan (Sorting) Kolom
+  // Pengurutan (Sorting) Kolom - Menangani String dan Numerik + Tanggal Deadline
   rows.sort((a, b) => {
     let va = a[sortCol], vb = b[sortCol];
-    if (['No', 'Luas', 'Hari'].includes(sortCol)) {
+    if (['No', 'Luas', 'Hari', 'ProgPct', 'QCPct', 'DL_sort'].includes(sortCol)) {
       va = parseFloat(va) || 0;
       vb = parseFloat(vb) || 0;
       return (va - vb) * sortDir;
@@ -359,7 +363,8 @@ function renderTable() {
   }
 
   if ($('tbl-body')) {
-    $('tbl-body').innerHTML = rows.map(r => {
+    // parameter index + 1 akan secara dinamis membuat urutan baris 1, 2, 3... selalu berurut.
+    $('tbl-body').innerHTML = rows.map((r, index) => {
       const isbl = r.isBacklog;
       const rowCls = isbl ? 'row-bl' : 'row-bk';
       const blBadge = {
@@ -376,12 +381,13 @@ function renderTable() {
       const komitCls = r.Komit === 'Terkejar' ? 'komit-y' : (r.Komit === 'Tidak Terkejar' ? 'komit-n' : '');
       const komitStr = r.Komit === 'Terkejar' ? '✔' : (r.Komit === 'Tidak Terkejar' ? '✘' : '-');
 
+      // Penerapan Class `.col-keyid`, `.col-luas`, `.col-act` di HTML untuk sticky kolom 
       return `<tr class="${rowCls}">
-        <td style="color:var(--text3);font-size:10px;text-align:center">${r.No}</td>
+        <td style="color:var(--text3);font-size:10px;text-align:center">${index + 1}</td>
         <td><span class="${blBadge}">${blLabel}</span></td>
-        <td class="keyid-cell">${r.KeyID}</td>
-        <td class="luas-cell">${f1(r.Luas)}</td>
-        <td style="max-width:130px;overflow:hidden;text-overflow:ellipsis;font-size:11px" title="${r.Act}">${r.Act}</td>
+        <td class="keyid-cell col-keyid">${r.KeyID}</td>
+        <td class="luas-cell col-luas">${f1(r.Luas)}</td>
+        <td class="col-act" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;font-size:11px" title="${r.Act}">${r.Act}</td>
         <td><span class="${psCls}">${psLbl}</span></td>
         <td class="${hariCls}" style="text-align:right">${hariStr}</td>
         <td style="font-size:11px">${r.SPV}</td>
@@ -461,7 +467,6 @@ setInterval(() => {
 
 // ── INISIALISASI EVENT LISTENERS KONTROL UTAMA ────────────────────────────
 function initDashboardControls() {
-  // 1. Handler Real-time Input Kotak Pencarian
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
@@ -470,20 +475,18 @@ function initDashboardControls() {
     });
   }
 
-  // 2. Handler Navigasi Tab Utama Atas (Semua, Backlog, Bukan BL)
   const tabs = document.querySelectorAll('.filter-tab');
   tabs.forEach(tab => {
     tab.addEventListener('click', (e) => {
       tabs.forEach(t => t.classList.remove('active'));
       e.currentTarget.classList.add('active');
       
-      filterMode = e.currentTarget.dataset.f; // Nilai 'all', 'backlog', atau 'bukan'
+      filterMode = e.currentTarget.dataset.f;
       renderTable();
     });
   });
 }
 
-// Jalankan inisialisasi kontrol dashboard setelah DOM siap
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initDashboardControls);
 } else {

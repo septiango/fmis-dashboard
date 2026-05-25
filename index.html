@@ -4,53 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <title>FMIS Dashboard — Secure Portal</title>
-  <!-- CSS & FONTS -->
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css"/>
   <style>
-    *,
-    *::before,
-    *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    :root {
-      --bg:        #0D1117;
-      --bg2:       #161B22;
-      --bg3:       #1C2230;
-      --card:      #161B22;
-      --card2:     #1C2230;
-      --border:    rgba(255,255,255,0.08);
-      --border2:   rgba(255,255,255,0.13);
-      --text:      #E6EDF3;
-      --text2:     #8B949E;
-      --text3:     #484F58;
-      --accent:    #00C896;
-      --accent2:   #00A87D;
-      --backlog:   #EF4444;
-      --bukan:     #10B981;
-      --b1:        #3B82F6;
-      --b2:        #F59E0B;
-      --b3:        #EC4899;
-      --p1:        #4B5563;
-      --p2:        #EF4444;
-      --p3:        #EAB308;
-      --p4:        #22C55E;
-      --p5:        #8B5CF6;
-      --r:         10px;
-      --r-sm:      6px;
-      --r-lg:      14px;
-      --shadow:    0 1px 8px rgba(0,0,0,0.4);
-      --shadow-md: 0 4px 20px rgba(0,0,0,0.5);
-    }
-    html { font-size: 13px; }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-    /* ===== LOGIN ===== */
     .login-container {
       min-height: 100vh;
       display: flex;
@@ -76,13 +31,16 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .login-logo {
-      width: 60px; height: 60px;
+      width: 60px;
+      height: 60px;
       background: linear-gradient(135deg, var(--accent), var(--accent2));
       border-radius: 16px;
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin: 0 auto 20px;
-      color: #0D1117;
     }
+    .login-logo svg { width: 32px; height: 32px; }
     .login-title { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 8px; }
     .login-sub { font-size: 12px; color: var(--text2); text-align: center; margin-bottom: 32px; }
     .login-input-group { margin-bottom: 20px; }
@@ -106,493 +64,212 @@
       border-radius: var(--r-sm); font-size: 12px; text-align: center;
       margin-top: 16px; display: none; border-left: 3px solid var(--backlog);
     }
-    /* ===== DASHBOARD UI ===== */
+    .login-footer { text-align: center; font-size: 10px; color: var(--text3); margin-top: 24px; }
     .dashboard-wrapper { display: none; }
-    .topbar {
-      background: var(--bg2);
-      border-bottom: 1px solid var(--border2);
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      gap: 10px;
-    }
-    .topbar-brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .topbar-logo {
-      width: 32px; height: 32px; border-radius: 8px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      display: flex; align-items: center; justify-content: center;
-      color: #0D1117;
-    }
-    .topbar-title { font-size: 13px; font-weight: 800; letter-spacing: 0.06em; }
-    .topbar-sub { font-size: 9px; color: var(--text3); letter-spacing: 0.1em; font-weight: 600; }
-    .topbar-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
-    .topbar-update { font-size: 9.5px; color: var(--text2); white-space: nowrap; }
-    .btn-icon, .btn-upload {
-      background: var(--bg3); color: var(--text2);
-      padding: 6px 9px; border-radius: var(--r-sm);
-      font-size: 11px; cursor: pointer; border: 1px solid var(--border2);
-      display: inline-flex; align-items: center; gap: 4px; white-space: nowrap;
-      transition: all .15s;
-    }
-    .btn-icon:hover { background: var(--card2); color: var(--text); border-color: var(--accent); }
-    .btn-upload { background: var(--accent); color: #0D1117; font-weight: 800; border: none; }
-    .btn-upload:hover { background: #00B88A; }
-    .logout-btn { background: rgba(239,68,68,0.2); color: #F87171; border-color: rgba(239,68,68,0.3); }
-    .wrap { max-width: 1300px; margin: 0 auto; padding: 14px 18px 60px; }
-    /* kartu & grid */
-    .sec-head {
-      font-size: 9px; font-weight: 800; letter-spacing: 0.12em;
-      color: var(--text3);
-      margin: 20px 0 9px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .sec-head::after { content:''; flex:1; height:1px; background: var(--border); }
-    .kpi-row { display: grid; gap: 8px; margin-bottom: 8px; }
-    .kpi-row.three-col { grid-template-columns: repeat(3, 1fr); }
-    .kpi-row.three { grid-template-columns: repeat(3, 1fr); }
-    .kpi-card {
-      background: var(--card);
-      border-radius: var(--r);
-      padding: 13px;
-      border: 1px solid var(--border);
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
-    .k-bl::before { background: var(--backlog); }
-    .k-bk::before { background: var(--bukan); }
-    .k-gt::before { background: linear-gradient(90deg, var(--b1), var(--b3)); }
-    .k-b1::before { background: var(--b1); }
-    .k-b2::before { background: var(--b2); }
-    .k-b3::before { background: var(--b3); }
-    .kpi-inner { display: flex; justify-content: space-between; align-items: flex-start; }
-    .kpi-val { font-size: 22px; font-weight: 900; line-height: 1; font-family: 'IBM Plex Mono', monospace; }
-    .kpi-val .unit { font-size: 11px; font-weight: 500; color: var(--text2); }
-    .kpi-badge {
-      display: inline-block; margin-top: 5px;
-      font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px;
-    }
-    .badge-bl { background: rgba(239,68,68,.18); color: #F87171; }
-    .badge-bk { background: rgba(16,185,129,.18); color: #34D399; }
-    .badge-tot { background: rgba(59,130,246,.18); color: #60A5FA; }
-    .overview-wrap, .chart-card, .legend-strip, .table-outer, .panel-card, .alert-card, .filter-bar {
-      background: var(--card);
-      border-radius: var(--r);
-      border: 1px solid var(--border);
-      padding: 12px 13px;
-      margin-bottom: 8px;
-      box-shadow: var(--shadow);
-    }
-    .ov-bar { display: flex; height: 12px; border-radius: 100px; overflow: hidden; background: var(--bg3); }
-    .ov-fill-bl { background: var(--backlog); transition: width .4s; }
-    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
-    .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-    .bar-name { width: 70px; font-size: 11px; font-weight: 800; }
-    .bar-track { flex: 1; height: 16px; border-radius: 4px; background: var(--bg3); display: flex; overflow: hidden; }
-    .bar-seg { height: 100%; font-size: 9px; font-weight: 800; color: rgba(255,255,255,0.9); text-shadow: 0 1px 2px black; text-align: center; line-height: 16px; }
-    .bar-total { width: 55px; text-align: right; font-weight: 800; font-family: monospace; }
-    .s1 { background: var(--p1); } .s2 { background: var(--p2); } .s3 { background: var(--p3); color:#1e293b; } .s4 { background: var(--p4); } .s5 { background: var(--p5); }
-    .legend-strip-title { font-size: 8.5px; font-weight: 700; color: var(--text3); margin-bottom: 7px; }
-    .legend-items { display: flex; flex-wrap: wrap; gap: 6px; }
-    .leg-chip { background: var(--bg3); padding: 3px 8px; border-radius: 4px; display: flex; align-items: center; gap: 4px; font-size: 10px; }
-    .leg-dot { width: 8px; height: 8px; border-radius: 2px; }
-    /* FILTER & SEARCH */
-    .filter-bar { padding: 10px 11px; margin-bottom: 9px; }
-    .search-wrap { position: relative; margin-bottom: 8px; }
-    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; }
-    .search-input {
-      width: 100%; padding: 8px 10px 8px 30px;
-      border: 1px solid var(--border2); border-radius: var(--r-sm);
-      font-size: 12px; background: var(--bg3); color: var(--text);
-      outline: none;
-    }
-    .search-input:focus { border-color: var(--accent); }
-    .tab-row { display: flex; gap: 5px; margin-top: 6px; }
-    .filter-tab {
-      flex: 1; padding: 6px 4px; border: 1px solid var(--border2);
-      background: var(--bg3); border-radius: var(--r-sm);
-      font-size: 10px; font-weight: 700; color: var(--text2);
-      cursor: pointer; text-align: center; transition: all .15s;
-    }
-    .filter-tab.active.t-all { background: var(--accent); color: #0D1117; border-color: var(--accent); }
-    .filter-tab.active.t-bl { background: var(--backlog); color: #fff; }
-    .filter-tab.active.t-bk { background: var(--bukan); color: #0D1117; }
-    .filter-tab:hover:not(.active) { border-color: var(--accent); color: var(--text); }
-    .row-count { font-size: 10px; color: var(--text3); margin-top: 6px; font-weight: 600; }
-    /* TABLE */
-    .table-scroll { overflow-x: auto; }
-    .main-tbl { width: 100%; border-collapse: collapse; font-size: 11px; min-width: 760px; }
-    .main-tbl th { padding: 8px 7px; font-size: 8.5px; font-weight: 700; text-transform: uppercase; color: var(--text2); border-right: 1px solid var(--border); cursor: pointer; }
-    .main-tbl td { padding: 7px 7px; white-space: nowrap; }
-    .row-bl:nth-child(odd) { background: rgba(239,68,68,.025); }
-    .row-bl:nth-child(even) { background: rgba(239,68,68,.04); }
-    .row-bk:nth-child(odd) { background: rgba(16,185,129,.02); }
-    .row-bk:nth-child(even) { background: rgba(16,185,129,.035); }
-    .tbl-badge { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 9px; font-weight: 800; }
-    .bl1 { background: rgba(59,130,246,.2); color: #60A5FA; }
-    .bl2 { background: rgba(245,158,11,.2); color: #FCD34D; }
-    .bl3 { background: rgba(236,72,153,.2); color: #F472B6; }
-    .blk { background: rgba(16,185,129,.2); color: #34D399; }
-    .ps-chip { display: inline-block; padding: 2px 5px; border-radius: 4px; font-size: 9px; font-weight: 800; color:#fff; }
-    .ps1 { background: var(--p1); } .ps2 { background: var(--p2); } .ps3 { background: #CA8A04; color:#1e293b; } .ps4 { background: #16A34A; } .ps5 { background: var(--p5); }
-    .hari-neg { color: #F87171; font-weight: 800; }
-    .hari-pos { color: #34D399; font-weight: 800; }
-    .keyid-cell { font-weight: 700; font-family: monospace; color: var(--accent); }
-    /* BOTTOM GRID: ringkasan, donut, keterangan, alert */
-    .bottom-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .ringkasan-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; text-align: center; }
-    .rk-val { font-size: 20px; font-weight: 900; font-family: monospace; }
-    .donut-wrap { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
-    .donut-legend { flex: 1; }
-    .donut-row { display: flex; align-items: center; gap: 6px; font-size: 10px; margin-bottom: 5px; }
-    .donut-dot { width: 8px; height: 8px; border-radius: 2px; }
-    .ket-list { display: flex; flex-direction: column; gap: 8px; }
-    .ket-item { display: flex; gap: 8px; font-size: 11px; color: var(--text2); }
-    .alert-header { display: flex; justify-content: space-between; margin-bottom: 12px; }
-    .alert-avg-num { font-size: 28px; font-weight: 900; font-family: monospace; }
-    .alert-item { background: var(--bg3); padding: 8px 10px; border-radius: 6px; display: flex; gap: 8px; margin-bottom: 6px; font-size: 11px; }
-    .alert-dot { width: 20px; height: 20px; border-radius: 4px; display: flex; align-items: center; justify-content: center; }
-    .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(13,17,23,0.9); z-index: 200; align-items: center; justify-content: center; }
-    .spinner { width: 32px; height: 32px; border: 3px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%) translateY(60px); background: var(--bg2); padding: 10px 18px; border-radius: 8px; z-index: 300; transition: .2s; white-space: nowrap; border-left: 4px solid var(--accent); }
-    .toast.show { transform: translateX(-50%) translateY(0); }
-    .footer { text-align: center; font-size: 10px; color: var(--text3); padding: 16px; border-top: 1px solid var(--border); margin-top: 12px; }
-    @media (max-width: 700px) { .bottom-grid { grid-template-columns: 1fr; } .charts-grid { grid-template-columns: 1fr; } .kpi-row.three-col { grid-template-columns: 1fr; } .kpi-row.three { grid-template-columns: 1fr; } .wrap { padding: 10px; } }
+    .logout-btn { background: rgba(239,68,68,0.2); color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
+    .logout-btn:hover { background: rgba(239,68,68,0.3); color: #FF8A8A; }
   </style>
 </head>
 <body>
 
 <div id="loginContainer" class="login-container">
   <div class="login-card">
-    <div class="login-logo">📊</div>
+    <div class="login-logo">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+        <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="currentColor"/>
+      </svg>
+    </div>
     <div class="login-title">FMIS Dashboard</div>
     <div class="login-sub">Masuk untuk melanjutkan</div>
-    <div class="login-input-group"><label>USERNAME</label><input type="text" id="loginUsername" class="login-input" placeholder="Username"></div>
-    <div class="login-input-group"><label>PASSWORD</label><input type="password" id="loginPassword" class="login-input" placeholder="Password"></div>
-    <button class="login-btn" onclick="handleLogin()">MASUK →</button>
+    <div class="login-input-group">
+      <label>USERNAME</label>
+      <input type="text" id="loginUsername" class="login-input" placeholder="Masukkan username" autocomplete="off">
+    </div>
+    <div class="login-input-group">
+      <label>PASSWORD</label>
+      <input type="password" id="loginPassword" class="login-input" placeholder="Masukkan password">
+    </div>
+    <button class="login-btn" id="loginBtn">MASUK →</button>
     <div id="loginError" class="login-error"></div>
     <div class="login-footer">Internal Team Access Only</div>
   </div>
 </div>
 
 <div id="dashboardWrapper" class="dashboard-wrapper">
+  <div id="dropzone-overlay"><div class="dz-box"><div class="dz-icon">📂</div><div class="dz-title">Drop file CSV di sini</div><div class="dz-sub">Data akan langsung diperbarui</div></div></div>
   <div id="loading" class="loading-overlay"><div class="spinner"></div><div class="loading-text">Memuat data...</div></div>
   <div id="toast" class="toast"></div>
+
   <nav class="topbar">
-    <div class="topbar-brand"><div class="topbar-logo">📋</div><div><div class="topbar-title">DASHBOARD BACKLOG</div><div class="topbar-sub">RINGKASAN AREA</div></div></div>
-    <div class="topbar-right"><div class="topbar-update" id="topbar-update">⟳ Update Terakhir: —</div><button class="btn-icon logout-btn" id="btn-logout">🚪</button><label class="btn-upload">📂 CSV<input type="file" id="file-input" accept=".csv" style="display:none"/></label></div>
-  </nav>
-  <div class="wrap">
-    <!-- KPI -->
-    <div class="kpi-row three-col">
-      <div class="kpi-card k-bl"><div class="kpi-inner"><div><div class="kpi-label">TOTAL BACKLOG</div><div class="kpi-val" id="v-bl-ha">— <span class="unit">ha</span></div><div class="kpi-sub" id="v-bl-ct">— petak</div><span class="kpi-badge badge-bl" id="v-bl-pct">—%</span></div><div>⚠️</div></div></div>
-      <div class="kpi-card k-bk"><div class="kpi-inner"><div><div class="kpi-label">BUKAN BACKLOG</div><div class="kpi-val" id="v-bk-ha">— <span class="unit">ha</span></div><div class="kpi-sub" id="v-bk-ct">— petak</div><span class="kpi-badge badge-bk" id="v-bk-pct">—%</span></div><div>✅</div></div></div>
-      <div class="kpi-card k-gt"><div class="kpi-inner"><div><div class="kpi-label">GRAND TOTAL</div><div class="kpi-val" id="v-tot-ha">— <span class="unit">ha</span></div><div class="kpi-sub" id="v-tot-ct">— petak</div><span class="kpi-badge badge-tot" id="v-tot-badge">—</span></div><div>📌</div></div></div>
+    <div class="topbar-brand">
+      <div class="topbar-logo"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="currentColor" opacity=".9"/></svg></div>
+      <div><div class="topbar-title">DASHBOARD BACKLOG</div><div class="topbar-sub" id="topbar-date">RINGKASAN AREA</div></div>
     </div>
-    <div class="overview-wrap"><div class="ov-title">PROPORSI BACKLOG vs BUKAN BACKLOG</div><div class="ov-bar"><div class="ov-fill-bl" id="ov-fill" style="width:0%"></div><div class="ov-fill-bk" style="flex:1; background:#10B981"></div></div><div class="ov-legend" id="ov-legend"></div></div>
+    <div class="topbar-right">
+      <div class="topbar-update" id="topbar-update">⟳ Update Terakhir: —</div>
+      <div class="topbar-actions">
+        <button class="btn-icon logout-btn" id="btn-logout" title="Logout">🚪</button>
+        <button class="btn-icon" id="btn-export-html" title="Export HTML">🌐</button>
+        <button class="btn-icon" id="btn-export-excel" title="Export Excel">📊</button>
+        <button class="btn-icon" id="btn-export-pdf" title="Export PDF HD">🖨</button>
+        <label class="btn-upload" title="Upload CSV"><input type="file" id="file-input" accept=".csv" style="display:none"/><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>CSV</label>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <!-- KPI UTAMA -->
+    <div class="kpi-row three-col">
+      <div class="kpi-card k-bl"><div class="kpi-inner"><div><div class="kpi-label">TOTAL BACKLOG</div><div class="kpi-val" id="v-bl-ha">— <span class="unit">ha</span></div><div class="kpi-sub" id="v-bl-ct">— petak</div><span class="kpi-badge badge-bl" id="v-bl-pct">—%</span></div><div class="kpi-icon kpi-icon-bl"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/><circle cx="17" cy="18" r="3" fill="#EF4444" stroke="none"/><path d="M17 16.5v1l.5.5" stroke="white" stroke-width="1.2"/></svg></div></div></div>
+      <div class="kpi-card k-bk"><div class="kpi-inner"><div><div class="kpi-label">BUKAN BACKLOG</div><div class="kpi-val" id="v-bk-ha">— <span class="unit">ha</span></div><div class="kpi-sub" id="v-bk-ct">— petak</div><span class="kpi-badge badge-bk" id="v-bk-pct">—%</span></div><div class="kpi-icon kpi-icon-bk"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12l2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div>
+      <div class="kpi-card k-gt"><div class="kpi-inner"><div><div class="kpi-label">GRAND TOTAL</div><div class="kpi-val" id="v-tot-ha">— <span class="unit">ha</span></div><div class="kpi-sub" id="v-tot-ct">— petak total</div><span class="kpi-badge badge-tot" id="v-tot-badge">—</span></div><div class="kpi-icon kpi-icon-gt"><svg width="32" height="32" viewBox="0 0 100 100"><circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="8"/><path id="gt-arc-bl" d="" fill="none" stroke="#EF4444" stroke-width="8" stroke-linecap="round"/><path id="gt-arc-bk" d="" fill="none" stroke="#10B981" stroke-width="8" stroke-linecap="round"/></svg></div></div></div>
+    </div>
+
+    <!-- PROPORSI BAR -->
+    <div class="overview-wrap"><div class="ov-title">PROPORSI BACKLOG vs BUKAN BACKLOG</div><div class="ov-bar"><div class="ov-fill-bl" id="ov-fill" style="width:0%"></div><div class="ov-fill-bk"></div></div><div class="ov-legend" id="ov-legend"></div></div>
+
+    <!-- KATEGORI BACKLOG -->
     <div class="sec-head">KATEGORI BACKLOG</div>
     <div class="kpi-row three">
-      <div class="kpi-card k-b1"><div class="kpi-label-cat">BACKLOG 1</div><div class="kpi-val" id="v-b1-ha">—<span class="unit"> ha</span></div><div class="kpi-sub" id="v-b1-ct">—</div><span class="kpi-badge badge-b1" id="v-b1-pct">—%</span></div>
-      <div class="kpi-card k-b2"><div class="kpi-label-cat">BACKLOG 2</div><div class="kpi-val" id="v-b2-ha">—<span class="unit"> ha</span></div><div class="kpi-sub" id="v-b2-ct">—</div><span class="kpi-badge badge-b2" id="v-b2-pct">—%</span></div>
-      <div class="kpi-card k-b3"><div class="kpi-label-cat">BACKLOG 3</div><div class="kpi-val" id="v-b3-ha">—<span class="unit"> ha</span></div><div class="kpi-sub" id="v-b3-ct">—</div><span class="kpi-badge badge-b3" id="v-b3-pct">—%</span></div>
+      <div class="kpi-card k-b1"><div class="kpi-label-cat">BACKLOG 1</div><div class="kpi-val-cat" id="v-b1-ha">—<span class="unit-sm"> ha</span></div><div class="kpi-sub" id="v-b1-ct">—</div><span class="kpi-badge badge-b1" id="v-b1-pct">—%</span></div>
+      <div class="kpi-card k-b2"><div class="kpi-label-cat">BACKLOG 2</div><div class="kpi-val-cat" id="v-b2-ha">—<span class="unit-sm"> ha</span></div><div class="kpi-sub" id="v-b2-ct">—</div><span class="kpi-badge badge-b2" id="v-b2-pct">—%</span></div>
+      <div class="kpi-card k-b3"><div class="kpi-label-cat">BACKLOG 3</div><div class="kpi-val-cat" id="v-b3-ha">—<span class="unit-sm"> ha</span></div><div class="kpi-sub" id="v-b3-ct">—</div><span class="kpi-badge badge-b3" id="v-b3-pct">—%</span></div>
     </div>
-    <div class="legend-strip"><div class="legend-strip-title">KETERANGAN PROGRESS STATUS</div><div class="legend-items"><span class="leg-chip"><span class="leg-dot" style="background:var(--p1)"></span>01 Blank SPK</span><span class="leg-chip"><span class="leg-dot" style="background:var(--p2)"></span>02 SPK Progress</span><span class="leg-chip"><span class="leg-dot" style="background:var(--p3)"></span>03 QA</span><span class="leg-chip"><span class="leg-dot" style="background:var(--p4)"></span>04 QC</span><span class="leg-chip"><span class="leg-dot" style="background:var(--p5)"></span>05 Rilis BAP</span></div></div>
+
+    <!-- LEGEND -->
+    <div class="legend-strip"><div class="legend-strip-title">KETERANGAN WARNA PROGRESS STATUS</div><div class="legend-items"><span class="leg-chip"><span class="leg-dot" style="background:var(--p1)"></span>01. Blank SPK</span><span class="leg-chip"><span class="leg-dot" style="background:var(--p2)"></span>02. SPK Progress</span><span class="leg-chip"><span class="leg-dot" style="background:var(--p3)"></span>03. QA</span><span class="leg-chip"><span class="leg-dot" style="background:var(--p4)"></span>04. QC</span><span class="leg-chip"><span class="leg-dot" style="background:var(--p5)"></span>05. Rilis BAP</span></div></div>
+
+    <!-- CHARTS -->
     <div class="charts-grid">
-      <div class="chart-card"><div class="chart-title">PERFORMA PER KOORDINATOR</div><div id="coor-chart"><div class="no-data">—</div></div></div>
-      <div class="chart-card"><div class="chart-title">PERFORMA PER PENGAWAS</div><div id="spv-chart"><div class="no-data">—</div></div></div>
+      <div class="chart-card"><div class="chart-header"><div><div class="chart-title">PERFORMA PER KOORDINATOR</div><div class="chart-sub">Resume COOR · Total ha berdasarkan progress status</div></div></div><div id="coor-chart"><div class="no-data">Belum ada data</div></div></div>
+      <div class="chart-card"><div class="chart-header"><div><div class="chart-title">PERFORMA PER PENGAWAS</div><div class="chart-sub">Resume SPV · Total ha berdasarkan progress status</div></div></div><div id="spv-chart"><div class="no-data">Belum ada data</div></div></div>
     </div>
-    <!-- SEARCH & FILTER ditempatkan persis di atas tabel -->
+
+    <!-- DETAIL PETAK KERJA -->
+    <div class="sec-head">DETAIL PETAK KERJA</div>
+    
+    <!-- FILTER & PENCARIAN -->
     <div class="filter-bar">
-      <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" class="search-input" id="search-input" placeholder="Cari KeyID, aktivitas, SPV, COOR..."/></div>
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" id="search-input" placeholder="Cari KeyID, aktivitas, SPV, COOR..."/>
+      </div>
       <div class="tab-row">
-        <button class="filter-tab active t-all" data-f="all">Semua</button>
-        <button class="filter-tab t-bl" data-f="backlog">Backlog</button>
-        <button class="filter-tab t-bk" data-f="bukan">Bukan BL</button>
+        <button class="filter-tab active t-all" data-filter="all">📋 Semua</button>
+        <button class="filter-tab t-bl" data-filter="backlog">⚠️ Backlog</button>
+        <button class="filter-tab t-bk" data-filter="bukan">✅ Bukan BL</button>
       </div>
       <div class="row-count" id="row-count">— baris</div>
     </div>
-    <div class="table-outer"><div class="table-scroll"><table class="main-tbl" id="main-tbl"><thead><tr><th data-col="No">No▲</th><th data-col="Backlog">Tipe</th><th data-col="KeyID">KeyID</th><th data-col="Luas">Luas</th><th data-col="Activity Description">Aktivitas</th><th data-col="Progress Status">Status</th><th data-col="Hari">Hari</th><th data-col="SPV">SPV</th><th data-col="COOR">COOR</th><th data-col="DATELINE">Deadline</th><th data-col="Komitmen 22">Komit</th></tr></thead><tbody id="tbl-body"><tr><td colspan="11">Memuat...</td></tr></tbody></table></div></div>
-    <!-- BOTTOM GRID: Ringkasan, Donut, Keterangan, Alert -->
+
+    <!-- TABEL -->
+    <div class="table-outer"><div class="table-scroll"><table class="main-tbl" id="main-tbl"><thead><tr><th data-col="No" class="sorted">No<span class="sort-arr">▲</span></th><th data-col="Backlog">Tipe</th><th data-col="KeyID">KeyID</th><th data-col="Luas" style="text-align:right">Luas</th><th data-col="Activity Description">Aktivitas</th><th data-col="Progress Status">Status</th><th data-col="Hari" style="text-align:right">Hari</th><th data-col="SPV">SPV</th><th data-col="COOR">COOR</th><th data-col="DATELINE">Deadline</th><th data-col="Komitmen 22" style="text-align:center">Komit</th></tr></thead><tbody id="tbl-body"><tr><td colspan="11" class="no-data">Memuat data...</td></td></tbody></table></div></div>
+
+    <!-- BOTTOM PANELS: Ringkasan Cepat, Progress Status, Keterangan, Alert -->
     <div class="bottom-grid">
-      <div class="panel-card"><div class="panel-title">RINGKASAN CEPAT</div><div class="ringkasan-grid"><div><div class="rk-val" id="rk-total-ha">—</div><div>Total Area</div></div><div><div class="rk-val" id="rk-total-pk">—</div><div>Total Petak</div></div><div><div class="rk-val" id="rk-bl-pk">—</div><div>Petak Backlog</div></div><div><div class="rk-val" id="rk-bk-pk">—</div><div>Petak Non BL</div></div></div></div>
-      <div class="panel-card"><div class="panel-title">PROGRESS STATUS OVERVIEW</div><div class="donut-wrap"><svg id="donut-svg" viewBox="0 0 120 120" width="100" height="100"><circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="18"/></svg><div class="donut-legend" id="donut-legend"></div></div></div>
-      <div class="panel-card"><div class="panel-title">KETERANGAN</div><div class="ket-list"><div class="ket-item"><span>⚠️</span><span>Hari (−) = Overdue</span></div><div class="ket-item"><span>✅</span><span>Hari (+) = Lebih cepat</span></div><div class="ket-item"><span>🔴</span><span>Semakin negatif = tunggakan lama</span></div></div></div>
+      <div class="panel-card"><div class="panel-title">RINGKASAN CEPAT</div><div class="ringkasan-grid"><div class="rk-item"><div class="rk-icon">🌍</div><div class="rk-val" id="rk-total-ha">—</div><div class="rk-lbl">Total Area</div></div><div class="rk-item"><div class="rk-icon">📋</div><div class="rk-val" id="rk-total-pk">—</div><div class="rk-lbl">Total Petak</div></div><div class="rk-item"><div class="rk-icon">⚠️</div><div class="rk-val" id="rk-bl-pk">—</div><div class="rk-lbl">Petak Backlog</div></div><div class="rk-item"><div class="rk-icon">✅</div><div class="rk-val" id="rk-bk-pk">—</div><div class="rk-lbl">Petak Non BL</div></div></div></div>
+      <div class="panel-card"><div class="panel-title">PROGRESS STATUS OVERVIEW</div><div class="donut-wrap"><svg id="donut-svg" viewBox="0 0 120 120" width="110" height="110"><circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="18"/></svg><div class="donut-legend" id="donut-legend"></div></div></div>
+      <div class="panel-card"><div class="panel-title">KETERANGAN</div><div class="ket-list"><div class="ket-item"><span class="ket-icon neg">↑</span><span class="ket-text">Hari (−) = Overdue (lewat deadline)</span></div><div class="ket-item"><span class="ket-icon pos">↑</span><span class="ket-text">Hari (+) = Lebih cepat dari deadline</span></div><div class="ket-item"><span class="ket-icon warn">⚠</span><span class="ket-text">Semakin negatif = Semakin lama tunggakan</span></div><div class="ket-item"><span class="ket-icon">🎯</span><span class="ket-text">Klik kolom untuk sorting</span></div></div></div>
     </div>
-    <div class="alert-card"><div class="alert-header"><div class="panel-title">ALERT & INSIGHT</div><div><div class="alert-avg-num" id="alert-avg-hari">—</div><div>Rata-rata tunggakan</div></div></div><div id="alert-list" class="alert-list"><div class="no-data">—</div></div></div>
+
+    <!-- ALERT & INSIGHT -->
+    <div class="alert-card"><div class="alert-header"><div class="panel-title">ALERT &amp; INSIGHT</div><div class="alert-avg-wrap"><div class="alert-avg-num" id="alert-avg-hari">—</div><div class="alert-avg-lbl">Rata-rata hari<br>tunggakan</div></div></div><div id="alert-list" class="alert-list"><div class="no-data">Belum ada data</div></div></div>
   </div>
-  <footer class="footer">FMIS Dashboard · Secure Portal · Data realtime</footer>
+  <footer class="footer"><strong>FMIS Dashboard</strong> · Secure Portal · Data realtime dari Google Spreadsheet</footer>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="script.js"></script>
+
 <script>
-// ======================= CONFIG & STATE ======================
+// ===== KONFIGURASI =====
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJwzBiW8CwIIslkX3TOH0dQBWFKjT0RnxK6fyDMHxf_hwEdjJ4uopchg8JLfUk8lDXQA/exec';
-let allData = [];
-let filterMode = 'all';
-let searchKey = '';
-let sortCol = 'No';
-let sortDir = 1;
-const PROG_KEY = s => {
-  if(!s) return '01';
-  const u = s.trim().toUpperCase();
-  if(u.startsWith('05') || u.includes('BAP') || u.includes('RILIS')) return '05';
-  if(u.startsWith('04') || u.includes('QC')) return '04';
-  if(u.startsWith('03') || u.includes('QA')) return '03';
-  if(u.startsWith('02') || u.includes('PROGRESS')) return '02';
-  return '01';
-};
-const PROG_LABEL = {'01':'01. Blank SPK','02':'02. SPK Progress','03':'03. QA','04':'04. QC','05':'05. Rilis BAP'};
-const PROG_COLOR = {'01':'#4B5563','02':'#EF4444','03':'#EAB308','04':'#22C55E','05':'#8B5CF6'};
-const PROG_CHIP = {'01':'ps1','02':'ps2','03':'ps3','04':'ps4','05':'ps5'};
 
-function parseCSV(rows) {
-  return rows.map((row, idx) => {
-    const bl = row['Backlog'] || '';
-    const luas = parseFloat(row['Luas']) || 0;
-    const hari = parseInt(row['Hari']) || 0;
-    const pk = PROG_KEY(row['Progress Status']);
-    return {
-      No: idx+1, Backlog: bl, KeyID: row['KeyID']||'', TYPE: row['TYPE']||'-', Luas: luas,
-      Act: row['Activity Description']||'-', Hari: hari, SPV: row['SPV']||'-', COOR: row['COOR']||'-',
-      ProgPct: parseFloat(row['Prog(%)]')||0, DL: row['DATELINE']||'-', Komit: row['Komitmen 22']||'-',
-      isBacklog: bl === 'Backlog1' || bl === 'Backlog2' || bl === 'Backlog3', pk
-    };
-  });
-}
+let authToken = null;
+let currentUser = null;
 
-const f1 = n => (Math.round(n*10)/10).toLocaleString();
-const pct = (a,b) => b>0 ? ((a/b)*100).toFixed(1):'0';
-function $(id){ return document.getElementById(id); }
-function showLoading(v){ const el=$('loading'); if(el) el.style.display=v?'flex':'none'; }
-function toast(msg,type='ok'){ const t=$('toast'); if(t){ t.textContent=msg; t.className=`toast show ${type}`; setTimeout(()=>t.classList.remove('show'),3000); }}
-
-function renderDashboard() {
-  const bl = allData.filter(r=>r.isBacklog);
-  const bk = allData.filter(r=>!r.isBacklog);
-  const blH = bl.reduce((s,r)=>s+r.Luas,0);
-  const bkH = bk.reduce((s,r)=>s+r.Luas,0);
-  const gtH = blH+bkH;
-  $('v-bl-ha').innerHTML = f1(blH)+' <span class="unit">ha</span>';
-  $('v-bl-ct').innerText = bl.length+' petak';
-  $('v-bl-pct').innerText = pct(blH,gtH)+'%';
-  $('v-bk-ha').innerHTML = f1(bkH)+' <span class="unit">ha</span>';
-  $('v-bk-ct').innerText = bk.length+' petak';
-  $('v-bk-pct').innerText = pct(bkH,gtH)+'%';
-  $('v-tot-ha').innerHTML = f1(gtH)+' <span class="unit">ha</span>';
-  $('v-tot-ct').innerText = allData.length+' petak';
-  $('v-tot-badge').innerText = `${bl.length} BL, ${bk.length} BK`;
-  const blPct = gtH? (blH/gtH)*100:0;
-  $('ov-fill').style.width = blPct+'%';
-  $('ov-legend').innerHTML = `<span><span style="background:#EF4444;display:inline-block;width:8px;height:8px;"></span> Backlog: ${f1(blH)} ha (${blPct.toFixed(1)}%)</span> <span><span style="background:#10B981;display:inline-block;width:8px;height:8px;"></span> Bukan BL: ${f1(bkH)} ha (${(100-blPct).toFixed(1)}%)</span>`;
-  ['Backlog1','Backlog2','Backlog3'].forEach((cat,i)=>{
-    const rows=bl.filter(r=>r.Backlog===cat);
-    const ha=rows.reduce((s,r)=>s+r.Luas,0);
-    $(`v-b${i+1}-ha`).innerHTML = f1(ha)+'<span class="unit"> ha</span>';
-    $(`v-b${i+1}-ct`).innerText = rows.length+' petak';
-    $(`v-b${i+1}-pct`).innerText = pct(ha,blH)+'% backlog';
-  });
-  renderBarChart('coor-chart','COOR');
-  renderBarChart('spv-chart','SPV');
-  $('rk-total-ha').innerText = f1(gtH)+' ha';
-  $('rk-total-pk').innerText = allData.length;
-  $('rk-bl-pk').innerText = bl.length;
-  $('rk-bk-pk').innerText = bk.length;
-  renderDonut();
-  renderAlert(bl,bk,gtH,blH);
-  renderTable();
-  $('topbar-update').innerText = `⟳ Update Terakhir: ${new Date().toLocaleString()}`;
-}
-
-function renderBarChart(elId, groupKey) {
-  const map={};
-  allData.forEach(r=>{
-    let name=(r[groupKey]||'-').toUpperCase().trim();
-    if(!map[name]) map[name]={'01':0,'02':0,'03':0,'04':0,'05':0,total:0};
-    map[name][r.pk] += r.Luas;
-    map[name].total += r.Luas;
-  });
-  const arr=Object.entries(map).map(([k,v])=>({name:k,...v})).sort((a,b)=>b.total-a.total);
-  const maxT=Math.max(...arr.map(a=>a.total),1);
-  const container=$(elId);
-  if(!container) return;
-  container.innerHTML = arr.length ? arr.map(item=>{
-    const segs=['01','02','03','04','05'].map(k=>{
-      let v=item[k]||0;
-      if(!v) return '';
-      let w=(v/maxT*100).toFixed(1);
-      let lbl=parseFloat(w)>7 ? f1(v) : '';
-      return `<div class="bar-seg s${k.slice(1)}" style="width:${w}%" title="${PROG_LABEL[k]}: ${f1(v)} ha">${lbl}</div>`;
-    }).join('');
-    return `<div class="bar-row"><div class="bar-name">${item.name}</div><div class="bar-track">${segs}</div><div class="bar-total">${f1(item.total)} ha</div></div>`;
-  }).join('') : '<div class="no-data">Tidak ada data</div>';
-}
-
-function renderDonut() {
-  const statusMap={};
-  allData.forEach(r=>{ statusMap[r.pk]=(statusMap[r.pk]||0)+r.Luas; });
-  const total=Object.values(statusMap).reduce((a,b)=>a+b,0);
-  if(!total) return;
-  const svg=$('donut-svg');
-  if(!svg) return;
-  svg.querySelectorAll('.donut-seg').forEach(el=>el.remove());
-  const order=['01','02','03','04','05'];
-  let cumulOffset = 2*Math.PI*45 * 0.25;
-  const r=45, circ=2*Math.PI*r;
-  const legend=$('donut-legend');
-  if(legend) legend.innerHTML='';
-  order.forEach(k=>{
-    const val=statusMap[k]||0;
-    if(!val) return;
-    const pctSeg=val/total;
-    const dash=pctSeg*circ;
-    const gap=circ-dash;
-    const circle=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    circle.setAttribute('class','donut-seg');
-    circle.setAttribute('cx','60');circle.setAttribute('cy','60');
-    circle.setAttribute('r',r);
-    circle.setAttribute('fill','none');
-    circle.setAttribute('stroke',PROG_COLOR[k]);
-    circle.setAttribute('stroke-width','18');
-    circle.setAttribute('stroke-dasharray',`${dash} ${gap}`);
-    circle.setAttribute('stroke-dashoffset',cumulOffset);
-    svg.appendChild(circle);
-    cumulOffset -= dash;
-    if(legend) legend.innerHTML += `<div class="donut-row"><div class="donut-dot" style="background:${PROG_COLOR[k]}"></div><span>${PROG_LABEL[k]}</span><span style="margin-left:auto">${f1(val)} ha (${(pctSeg*100).toFixed(1)}%)</span></div>`;
-  });
-}
-
-function renderAlert(bl,bk,gtH,blH) {
-  const overdue=allData.filter(r=>r.Hari<0);
-  const avgOverdue=overdue.length ? Math.round(overdue.reduce((s,r)=>s+Math.abs(r.Hari),0)/overdue.length) : 0;
-  $('alert-avg-hari').innerText = avgOverdue||'—';
-  const alerts=[];
-  const coorMap={}; bl.forEach(r=>{ let c=r.COOR||'-'; coorMap[c]=(coorMap[c]||0)+r.Luas; });
-  const topCoor=Object.entries(coorMap).sort((a,b)=>b[1]-a[1])[0];
-  if(topCoor) alerts.push({cls:'red',icon:'🔴',text:`Backlog tertinggi: COOR ${topCoor[0]} (${f1(topCoor[1])} ha)`});
-  const spvMap={}; bl.forEach(r=>{ let s=r.SPV||'-'; spvMap[s]=(spvMap[s]||0)+r.Luas; });
-  const topSpv=Object.entries(spvMap).sort((a,b)=>b[1]-a[1])[0];
-  if(topSpv) alerts.push({cls:'yellow',icon:'🟡',text:`SPV tunggakan terbesar: ${topSpv[0]} (${f1(topSpv[1])} ha)`});
-  const severe=allData.filter(r=>r.Hari<-14).length;
-  if(severe) alerts.push({cls:'orange',icon:'🟠',text:`${severe} petak overdue berat (hari < -14)`});
-  const blPct=gtH?((blH/gtH)*100).toFixed(1):0;
-  alerts.push({cls:'red',icon:'🔴',text:`${blPct}% area masih backlog`});
-  $('alert-list').innerHTML = alerts.map(a=>`<div class="alert-item"><div class="alert-dot">${a.icon}</div><span>${a.text}</span></div>`).join('');
-}
-
-function renderTable() {
-  let rows = [...allData];
-  if(filterMode==='backlog') rows=rows.filter(r=>r.isBacklog);
-  if(filterMode==='bukan') rows=rows.filter(r=>!r.isBacklog);
-  if(searchKey.trim()){
-    const q=searchKey.toLowerCase();
-    rows=rows.filter(r=>r.KeyID.toLowerCase().includes(q) || r.Act.toLowerCase().includes(q) || r.SPV.toLowerCase().includes(q) || r.COOR.toLowerCase().includes(q) || r.Backlog.toLowerCase().includes(q));
+window.addEventListener('DOMContentLoaded', () => {
+  const savedToken = localStorage.getItem('fmis_token');
+  const savedUser = localStorage.getItem('fmis_user');
+  if (savedToken && savedUser) {
+    authToken = savedToken;
+    currentUser = savedUser;
+    loadDashboard();
   }
-  rows.sort((a,b)=>{
-    let va=a[sortCol], vb=b[sortCol];
-    if(['No','Luas','Hari'].includes(sortCol)){ va=parseFloat(va)||0; vb=parseFloat(vb)||0; return (va-vb)*sortDir; }
-    return String(va||'').localeCompare(String(vb||''))*sortDir;
-  });
-  $('row-count').innerText=`${rows.length} baris`;
-  if(!rows.length){ $('tbl-body').innerHTML='<tr><td colspan="11">🔍 Tidak ada data</td></tr>'; return; }
-  $('tbl-body').innerHTML = rows.map(r=>{
-    const isbl=r.isBacklog;
-    const rowCls=isbl?'row-bl':'row-bk';
-    const blBadge = {Backlog1:'bl1',Backlog2:'bl2',Backlog3:'bl3'}[r.Backlog]||'blk';
-    const blLabel={Backlog1:'BL-1',Backlog2:'BL-2',Backlog3:'BL-3'}[r.Backlog]||'NON-BL';
-    const psCls=`ps-chip ${PROG_CHIP[r.pk]}`;
-    const hariCls = r.Hari<0 ? 'hari-neg' : (r.Hari>0 ? 'hari-pos' : '');
-    const hariStr = r.Hari<0 ? `${r.Hari}` : (r.Hari>0 ? `+${r.Hari}` : '0');
-    const komitStr = r.Komit==='Terkejar' ? '✔' : (r.Komit==='Tidak Terkejar' ? '✘' : '-');
-    return `<tr class="${rowCls}"><td>${r.No}</td><td><span class="tbl-badge ${blBadge}">${blLabel}</span></td><td class="keyid-cell">${r.KeyID}</td><td>${f1(r.Luas)}</td><td>${r.Act}</td><td><span class="${psCls}">${PROG_LABEL[r.pk]}</span></td><td class="${hariCls}">${hariStr}</td><td>${r.SPV}</td><td>${r.COOR}</td><td>${r.DL}</td><td>${komitStr}</td></tr>`;
-  }).join('');
-  document.querySelectorAll('.main-tbl th').forEach(th=>{
-    th.onclick=()=>{
-      const c=th.dataset.col;
-      if(sortCol===c) sortDir*=-1;
-      else { sortCol=c; sortDir=1; }
-      renderTable();
-    };
-  });
+  
+  const loginBtn = document.getElementById('loginBtn');
+  if (loginBtn) loginBtn.onclick = handleLogin;
+});
+
+async function handleLogin() {
+  const username = document.getElementById('loginUsername').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errorDiv = document.getElementById('loginError');
+  
+  if (!username || !password) {
+    errorDiv.textContent = 'Username dan password harus diisi';
+    errorDiv.style.display = 'block';
+    return;
+  }
+  
+  errorDiv.style.display = 'none';
+  
+  try {
+    const response = await fetch(`${APPS_SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
+    const result = await response.json();
+    
+    if (result.success) {
+      authToken = result.token;
+      currentUser = result.username;
+      localStorage.setItem('fmis_token', result.token);
+      localStorage.setItem('fmis_user', result.username);
+      loadDashboard();
+    } else {
+      errorDiv.textContent = result.error || 'Login gagal';
+      errorDiv.style.display = 'block';
+    }
+  } catch (error) {
+    errorDiv.textContent = 'Koneksi gagal. Periksa jaringan Anda.';
+    errorDiv.style.display = 'block';
+  }
 }
 
-// API + AUTH
-async function handleLogin() {
-  const username=document.getElementById('loginUsername').value.trim();
-  const password=document.getElementById('loginPassword').value;
-  const errDiv=document.getElementById('loginError');
-  if(!username||!password){ errDiv.textContent='Isi username & password'; errDiv.style.display='block'; return; }
-  errDiv.style.display='none';
-  try{
-    const resp=await fetch(`${APPS_SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
-    const res=await resp.json();
-    if(res.success){
-      localStorage.setItem('fmis_token',res.token);
-      localStorage.setItem('fmis_user',res.username);
-      document.getElementById('loginContainer').style.display='none';
-      document.getElementById('dashboardWrapper').style.display='block';
-      await loadCSVFromAPI();
-    } else { errDiv.textContent=res.error||'Login gagal'; errDiv.style.display='block'; }
-  }catch(e){ errDiv.textContent='Koneksi gagal'; errDiv.style.display='block'; }
+function logout() {
+  localStorage.removeItem('fmis_token');
+  localStorage.removeItem('fmis_user');
+  authToken = null;
+  currentUser = null;
+  document.getElementById('loginContainer').style.display = 'flex';
+  document.getElementById('dashboardWrapper').style.display = 'none';
 }
-async function loadCSVFromAPI(){
-  showLoading(true);
-  try{
-    const token=localStorage.getItem('fmis_token');
-    if(!token) throw new Error('No token');
-    const resp=await fetch(`${APPS_SCRIPT_URL}?action=getData&token=${encodeURIComponent(token)}`);
-    const json=await resp.json();
-    if(json.success){
-      allData=parseCSV(json.data);
-      renderDashboard();
-      toast(`✅ ${allData.length} baris dimuat`,'ok');
-    } else throw new Error(json.error||'Gagal ambil data');
-  }catch(e){ console.error(e); toast('❌ Gagal mengambil data dari server','err'); allData=[]; renderDashboard(); }
-  showLoading(false);
+
+async function loadDashboard() {
+  document.getElementById('loginContainer').style.display = 'none';
+  document.getElementById('dashboardWrapper').style.display = 'block';
+  if (typeof window.loadCSVFromAPI === 'function') {
+    await window.loadCSVFromAPI();
+  } else {
+    console.error('loadCSVFromAPI not found');
+    showToastMsg('Error: Script tidak lengkap', 'err');
+  }
 }
-function logout(){ localStorage.clear(); location.reload(); }
-document.addEventListener('DOMContentLoaded',()=>{
-  const token=localStorage.getItem('fmis_token');
-  if(token){ document.getElementById('loginContainer').style.display='none'; document.getElementById('dashboardWrapper').style.display='block'; loadCSVFromAPI(); }
-  document.getElementById('btn-logout')?.addEventListener('click',logout);
-  // filter & search event
-  const searchInput=document.getElementById('search-input');
-  if(searchInput) searchInput.addEventListener('input',(e)=>{ searchKey=e.target.value; renderTable(); });
-  document.querySelectorAll('.filter-tab').forEach(btn=>{
-    btn.addEventListener('click',()=>{
-      document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      const f=btn.dataset.f;
-      if(f==='all') filterMode='all';
-      else if(f==='backlog') filterMode='backlog';
-      else if(f==='bukan') filterMode='bukan';
-      renderTable();
-    });
-  });
-  document.getElementById('file-input')?.addEventListener('change',async(e)=>{
-    const file=e.target.files[0];
-    if(!file) return;
-    const text=await file.text();
-    const rows=text.split('\n').slice(1).filter(l=>l.trim()).map(line=>{
-      const cols=line.split(',');
-      return {Backlog:cols[0],KeyID:cols[1],Luas:cols[3],ActivityDescription:cols[4],Hari:cols[6],SPV:cols[7],COOR:cols[8],'Progress Status':cols[5],DATELINE:cols[9],'Komitmen 22':cols[10]};
-    });
-    allData=parseCSV(rows);
-    renderDashboard();
-    toast(`📁 Upload ${allData.length} baris`,'ok');
-  });
+
+function showToastMsg(msg, type) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = msg;
+  toast.className = `toast ${type} show`;
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+window.showToastMsg = showToastMsg;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const logoutBtn = document.getElementById('btn-logout');
+  if (logoutBtn) logoutBtn.addEventListener('click', logout);
 });
-window.loadCSVFromAPI=loadCSVFromAPI;
 </script>
 </body>
 </html>

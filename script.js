@@ -33,7 +33,7 @@ function formatNumericDate(dateStr) {
     const m = String(date.getMonth() + 1).padStart(2, '0');
     const y = date.getFullYear();
     
-    return `${d}-${m}-${y}`; 
+    return `${d}-${m}-${y}`; // Hasil akhir singkat: 12-05-2026
   } catch (e) {
     return dateStr;
   }
@@ -47,11 +47,11 @@ function parseCSV(rows) {
     const hari = parseInt(row['Hari']) || 0;
     const pk = PROG_KEY(row['Progress Status']);
     
-    // Sortir spesifik untuk tanggal (Numerik Milliseconds)
-    let dlSort = 0;
+    // Tangkap data milliseconds khusus untuk Sort Date
+    let dl_sort_val = 0;
     if (row['DATELINE'] && row['DATELINE'] !== '-') {
       const d = new Date(row['DATELINE']);
-      if (!isNaN(d.getTime())) dlSort = d.getTime();
+      if (!isNaN(d.getTime())) dl_sort_val = d.getTime();
     }
     
     return {
@@ -70,7 +70,7 @@ function parseCSV(rows) {
       ProgPct: parseFloat(row['Prog(%)']) || 0,
       QCPct: parseFloat(row['QC(%)']) || 0,
       DL: formatNumericDate(row['DATELINE']), 
-      DL_sort: dlSort,
+      DL_sort: dl_sort_val, // Nilai referensi rahasia untuk sortir A-Z Tanggal
       Komit: row['Komitmen 22'] || '-',
       isBacklog: bl === 'Backlog1' || bl === 'Backlog2' || bl === 'Backlog3',
       pk,
@@ -325,6 +325,7 @@ function renderAlert(bl, bk, gtH, blH) {
 function renderTable() {
   let rows = [...allData];
 
+  // 1. FILTERING
   if (filterMode === 'backlog') {
     rows = rows.filter(r => r.isBacklog);
   } else if (filterMode === 'bukan') {
@@ -344,26 +345,34 @@ function renderTable() {
     );
   }
 
-  // Pengurutan (Sorting) Kolom - Menangani String dan Numerik + Tanggal Deadline
+  // 2. PENGURUTAN (SORTING) 100% UNTUK SEMUA KOLOM
   rows.sort((a, b) => {
-    let va = a[sortCol], vb = b[sortCol];
+    let va = a[sortCol];
+    let vb = b[sortCol];
+    
+    // Safety check fallback
+    if (va === undefined) va = '';
+    if (vb === undefined) vb = '';
+
+    // Deteksi jika tipe datanya numerik
     if (['No', 'Luas', 'Hari', 'ProgPct', 'QCPct', 'DL_sort'].includes(sortCol)) {
       va = parseFloat(va) || 0;
       vb = parseFloat(vb) || 0;
       return (va - vb) * sortDir;
     }
-    return String(va || '').localeCompare(String(vb || '')) * sortDir;
+    // Sort biasa (String/Text A-Z)
+    return String(va).localeCompare(String(vb)) * sortDir;
   });
 
   if ($('row-count')) $('row-count').textContent = `${rows.length} baris ditampilkan`;
 
+  // 3. RENDER HTML KE DALAM TABEL
   if (!rows.length) {
     if ($('tbl-body')) $('tbl-body').innerHTML = `<tr><td colspan="11"><div class="no-data">🔍 Tidak ada data</div></td></tr>`;
     return;
   }
 
   if ($('tbl-body')) {
-    // parameter index + 1 akan secara dinamis membuat urutan baris 1, 2, 3... selalu berurut.
     $('tbl-body').innerHTML = rows.map((r, index) => {
       const isbl = r.isBacklog;
       const rowCls = isbl ? 'row-bl' : 'row-bk';
@@ -381,13 +390,14 @@ function renderTable() {
       const komitCls = r.Komit === 'Terkejar' ? 'komit-y' : (r.Komit === 'Tidak Terkejar' ? 'komit-n' : '');
       const komitStr = r.Komit === 'Terkejar' ? '✔' : (r.Komit === 'Tidak Terkejar' ? '✘' : '-');
 
-      // Penerapan Class `.col-keyid`, `.col-luas`, `.col-act` di HTML untuk sticky kolom 
+      // (index + 1) -> memastikan no urut berurutan tanpa putus walau sudah difilter/sort.
+      // col-keyid, col-luas, col-act dipasang agar dapat di-freeze oleh css
       return `<tr class="${rowCls}">
         <td style="color:var(--text3);font-size:10px;text-align:center">${index + 1}</td>
         <td><span class="${blBadge}">${blLabel}</span></td>
         <td class="keyid-cell col-keyid">${r.KeyID}</td>
         <td class="luas-cell col-luas">${f1(r.Luas)}</td>
-        <td class="col-act" style="max-width:130px;overflow:hidden;text-overflow:ellipsis;font-size:11px" title="${r.Act}">${r.Act}</td>
+        <td class="col-act" title="${r.Act}">${r.Act}</td>
         <td><span class="${psCls}">${psLbl}</span></td>
         <td class="${hariCls}" style="text-align:right">${hariStr}</td>
         <td style="font-size:11px">${r.SPV}</td>
@@ -397,24 +407,29 @@ function renderTable() {
       </tr>`;
     }).join('');
   }
+}
 
-  // Pasang ulang trigger sort pada header kolom table
+// ── INIT EVENT LISTENER HEADER TABLE ──────────────────────────────────────
+function initTableSort() {
   document.querySelectorAll('.main-tbl th[data-col]').forEach(th => {
     th.onclick = () => {
       const c = th.dataset.col;
       if (sortCol === c) sortDir *= -1;
       else { sortCol = c; sortDir = 1; }
+      
       document.querySelectorAll('.main-tbl th').forEach(t => {
         t.classList.remove('sorted');
         const arr = t.querySelector('.sort-arr');
         if (arr) arr.remove();
       });
+      
       th.classList.add('sorted');
       const sp = document.createElement('span');
       sp.className = 'sort-arr';
       sp.textContent = sortDir === 1 ? '▲' : '▼';
       th.appendChild(sp);
-      renderTable();
+      
+      renderTable(); // Update isi tabel tanpa me-reload data dari awal
     };
   });
 }
@@ -464,9 +479,9 @@ setInterval(() => {
   }
 }, 10 * 60 * 1000);
 
-
 // ── INISIALISASI EVENT LISTENERS KONTROL UTAMA ────────────────────────────
 function initDashboardControls() {
+  // 1. Handler Real-time Input Kotak Pencarian
   const searchInput = document.getElementById('search-input');
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
@@ -475,6 +490,7 @@ function initDashboardControls() {
     });
   }
 
+  // 2. Handler Navigasi Tab Utama Atas (Semua, Backlog, Bukan BL)
   const tabs = document.querySelectorAll('.filter-tab');
   tabs.forEach(tab => {
     tab.addEventListener('click', (e) => {
@@ -485,6 +501,9 @@ function initDashboardControls() {
       renderTable();
     });
   });
+
+  // 3. Mengaktifkan Sorting Header Table
+  initTableSort();
 }
 
 if (document.readyState === 'loading') {

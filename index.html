@@ -6,153 +6,35 @@
   <title>FMIS Dashboard — Secure Portal</title>
   <link rel="stylesheet" href="styles.css"/>
   <style>
-    .login-container {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, #0D1117 0%, #1a1f2e 100%);
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-    }
-    .login-card {
-      background: var(--card);
-      border-radius: var(--r-lg);
-      padding: 40px 32px;
-      width: 100%;
-      max-width: 400px;
-      border: 1px solid var(--border2);
-      box-shadow: var(--shadow-md);
-      animation: fadeInUp 0.5s ease;
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .login-logo {
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, var(--accent), var(--accent2));
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px;
-    }
+    .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #0D1117 0%, #1a1f2e 100%); position: fixed; inset: 0; z-index: 1000; }
+    .login-card { background: var(--card); border-radius: var(--r-lg); padding: 40px 32px; width: 100%; max-width: 400px; border: 1px solid var(--border2); box-shadow: var(--shadow-md); animation: fadeInUp 0.5s ease; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .login-logo { width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--accent2)); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; }
     .login-logo svg { width: 32px; height: 32px; }
     .login-title { font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 8px; }
     .login-sub { font-size: 12px; color: var(--text2); text-align: center; margin-bottom: 32px; }
     .login-input-group { margin-bottom: 20px; }
     .login-input-group label { display: block; font-size: 11px; font-weight: 600; color: var(--text2); margin-bottom: 6px; letter-spacing: 0.05em; }
-    .login-input {
-      width: 100%; padding: 12px 14px; background: var(--bg3);
-      border: 1px solid var(--border2); border-radius: var(--r-sm);
-      font-size: 14px; color: var(--text); font-family: inherit;
-      transition: all 0.2s;
-    }
+    .login-input { width: 100%; padding: 12px 14px; background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r-sm); font-size: 14px; color: var(--text); font-family: inherit; transition: all 0.2s; }
     .login-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,200,150,0.1); }
-    .login-btn {
-      width: 100%; padding: 12px; background: var(--accent); color: #0D1117;
-      border: none; border-radius: var(--r-sm); font-size: 14px;
-      font-weight: 800; cursor: pointer; margin-top: 12px;
-      transition: all 0.2s;
-    }
+    .login-btn { width: 100%; padding: 12px; background: var(--accent); color: #0D1117; border: none; border-radius: var(--r-sm); font-size: 14px; font-weight: 800; cursor: pointer; margin-top: 12px; transition: all 0.2s; }
     .login-btn:hover { background: #00B88A; transform: translateY(-1px); }
-    .login-error {
-      background: rgba(239,68,68,0.1); color: #F87171; padding: 10px;
-      border-radius: var(--r-sm); font-size: 12px; text-align: center;
-      margin-top: 16px; display: none; border-left: 3px solid var(--backlog);
-    }
+    .login-error { background: rgba(239,68,68,0.1); color: #F87171; padding: 10px; border-radius: var(--r-sm); font-size: 12px; text-align: center; margin-top: 16px; display: none; border-left: 3px solid var(--backlog); }
     .login-footer { text-align: center; font-size: 10px; color: var(--text3); margin-top: 24px; }
     .dashboard-wrapper { display: none; }
     .logout-btn { background: rgba(239,68,68,0.2); color: #F87171; border: 1px solid rgba(239,68,68,0.3); }
     .logout-btn:hover { background: rgba(239,68,68,0.3); color: #FF8A8A; }
-
-    /* =========================================================
-       CSS TAMBAHAN KHUSUS NAVIGASI & YTD DASHBOARD (AMAN)
-       ========================================================= */
-    .main-nav-container {
-      padding: 12px 14px 4px;
-      display: flex;
-      justify-content: center;
-      background: var(--bg);
-      position: sticky;
-      top: 53px; /* Tepat di bawah topbar */
-      z-index: 45;
-    }
-    .main-nav {
-      display: flex;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      padding: 5px;
-      border-radius: 12px;
-      gap: 5px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: var(--shadow);
-    }
-    .nav-btn {
-      flex: 1; border: none; background: transparent; color: var(--text2);
-      padding: 8px 12px; border-radius: 8px; font-size: 11px; font-weight: 700;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      gap: 8px; transition: all 0.3s;
-    }
-    .nav-dot { width: 6px; height: 6px; background: var(--text3); border-radius: 50%; transition: all 0.3s;}
-    .nav-btn.active { background: var(--accent); color: #0D1117; }
-    .nav-btn.active .nav-dot { background: #0D1117; box-shadow: 0 0 8px rgba(0,0,0,0.5); }
-    .nav-btn:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.05); }
-
-    .content-section { display: none; }
-    .content-section.active { display: block; animation: fadeIn 0.4s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* Gaya Khusus Halaman YTD */
-    .ytd-header { display: flex; justify-content: space-between; align-items: flex-end; margin: 10px 0 20px; }
-    .ytd-title { font-size: 18px; font-weight: 900; color: var(--text); letter-spacing: 0.05em; line-height: 1.2; }
-    .ytd-sub { font-size: 10px; color: var(--text2); margin-top: 4px; font-weight: 500;}
-    .ytd-badge { background: var(--bg3); border: 1px solid var(--accent); color: var(--accent); padding: 5px 12px; border-radius: 20px; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; }
-    
-    .ytd-mini-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.06); border-radius: 10px; margin-top: 12px; overflow: hidden; }
-    .ytd-mini-bar .fill { height: 100%; background: var(--accent); transition: width 1s ease; }
-    
-    .ytd-chart-container { display: flex; gap: 10px; height: 220px; padding: 20px 5px 10px; position: relative; }
-    .ytd-axis-y { display: flex; flex-direction: column; justify-content: space-between; font-size: 9px; color: var(--text3); font-family: 'IBM Plex Mono', monospace; text-align: right; min-width: 25px; padding-bottom: 20px;}
-    .ytd-chart-main { flex: 1; display: flex; flex-direction: column; position: relative; }
-    .area-chart { flex: 1; width: 100%; overflow: visible; }
-    .ytd-axis-x { display: flex; justify-content: space-between; margin-top: 10px; font-size: 9px; color: var(--text3); font-weight: 700; position: absolute; bottom: 0; width: 100%;}
-    
-    .chart-legend { display: flex; justify-content: center; gap: 24px; margin-top: 10px; padding-top: 15px; border-top: 1px solid var(--border); }
-    .leg-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text2); font-weight: 600; }
-    .leg-item .dot { width: 10px; height: 10px; border-radius: 3px; }
-
-    /* Jangan tampilkan Tab Navigasi saat di-Print */
-    @media print {
-      .main-nav-container { display: none !important; }
-      #section-ytd { display: none !important; } /* Sembunyikan YTD saat nge-print data tabel MTD */
-      #section-mtd { display: block !important; }
-    }
   </style>
 </head>
 <body>
 
 <div id="loginContainer" class="login-container">
   <div class="login-card">
-    <div class="login-logo">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-        <path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="currentColor"/>
-      </svg>
-    </div>
+    <div class="login-logo"><svg width="32" height="32" viewBox="0 0 24 24" fill="none"><path d="M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" fill="currentColor"/></svg></div>
     <div class="login-title">FMIS Dashboard D. Nilo</div>
     <div class="login-sub">Masuk untuk melanjutkan & Tunggu Beberapa saat</div>
-    <div class="login-input-group">
-      <label>USERNAME</label>
-      <input type="text" id="loginUsername" class="login-input" placeholder="Masukkan username" autocomplete="off">
-    </div>
-    <div class="login-input-group">
-      <label>PASSWORD</label>
-      <input type="password" id="loginPassword" class="login-input" placeholder="Masukkan password">
-    </div>
+    <div class="login-input-group"><label>USERNAME</label><input type="text" id="loginUsername" class="login-input" placeholder="Masukkan username" autocomplete="off"></div>
+    <div class="login-input-group"><label>PASSWORD</label><input type="password" id="loginPassword" class="login-input" placeholder="Masukkan password"></div>
     <button class="login-btn" onclick="handleLogin()">MASUK →</button>
     <div id="loginError" class="login-error"></div>
     <div class="login-footer">Internal Team Access Distrik Nilo Only</div>
@@ -170,20 +52,14 @@
     </div>
     <div class="topbar-right">
       <div class="topbar-update" id="topbar-update">⟳ Update Terakhir: —</div>
-      <div class="topbar-actions">
-        <button class="btn-icon logout-btn" id="btn-logout" title="Logout">🚪 Logout</button>
-      </div>
+      <div class="topbar-actions"><button class="btn-icon logout-btn" id="btn-logout" title="Logout">🚪 Logout</button></div>
     </div>
   </nav>
 
   <div class="main-nav-container">
     <div class="main-nav">
-      <button class="nav-btn active" onclick="switchSection('mtd', this)">
-        <span class="nav-dot"></span> Progress MTD
-      </button>
-      <button class="nav-btn" onclick="switchSection('ytd', this)">
-        <span class="nav-dot"></span> Pencapaian YTD
-      </button>
+      <button class="nav-btn active" onclick="switchSection('mtd', this)"><span class="nav-dot"></span> Progress MTD</button>
+      <button class="nav-btn" onclick="switchSection('ytd', this)"><span class="nav-dot"></span> Pencapaian YTD</button>
     </div>
   </div>
 
@@ -213,26 +89,19 @@
       </div>
 
       <div class="sec-head">DETAIL PETAK KERJA</div>
-      
       <div class="filter-bar">
-        <div class="search-wrap">
-          <span class="search-icon">🔍</span>
-          <input type="text" class="search-input" id="search-input" placeholder="Cari KeyID, aktivitas, SPV, COOR..."/>
-        </div>
-        
+        <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" class="search-input" id="search-input" placeholder="Cari KeyID, aktivitas, SPV, COOR..."/></div>
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
           <div class="tab-row" style="flex: 1; min-width: 200px;">
             <button class="filter-tab active t-all" data-f="all">Semua</button>
             <button class="filter-tab t-bl" data-f="backlog">Backlog</button>
             <button class="filter-tab t-bk" data-f="bukan">Bukan BL</button>
           </div>
-          
           <div class="export-row">
             <button class="btn-export" onclick="exportPDF()" title="Export PDF Warna (Digital)">📄 PDF</button>
             <button class="btn-export" onclick="printBWTabel()" title="Print Hitam Putih (Kertas)">🖨️ Print</button>
           </div>
         </div>
-
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; flex-wrap: wrap; gap: 4px;">
           <div class="row-count" id="row-count" style="margin-top: 0;">Jumlah Petak: —</div>
           <div id="subtotal-luas" style="font-size: 11px; font-weight: 700; color: var(--accent); font-family: 'IBM Plex Mono', monospace;">Subtotal (filter aktif): — Ha</div>
@@ -257,9 +126,7 @@
                 <th data-col="Komit">Komit</th>
               </tr>
             </thead>
-            <tbody id="tbl-body">
-              <tr><td colspan="11" class="no-data">Memuat data...</td></tr>
-            </tbody>
+            <tbody id="tbl-body"><tr><td colspan="11" class="no-data">Memuat data...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -269,9 +136,9 @@
         <div class="panel-card"><div class="panel-title">PROGRESS STATUS OVERVIEW</div><div class="donut-wrap"><svg id="donut-svg" viewBox="0 0 120 120" width="110" height="110"><circle cx="60" cy="60" r="45" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="18"/></svg><div class="donut-legend" id="donut-legend"></div></div></div>
         <div class="panel-card"><div class="panel-title">KETERANGAN</div><div class="ket-list"><div class="ket-item"><span class="ket-icon neg">↑</span><span class="ket-text">Hari (−) = Overdue (lewat deadline)</span></div><div class="ket-item"><span class="ket-icon pos">↑</span><span class="ket-text">Hari (+) = hari menuju Backlog</span></div><div class="ket-item"><span class="ket-icon warn">⚠</span><span class="ket-text">Semakin negatif = Semakin lama Backlognya</span></div></div></div>
       </div>
-
       <div class="alert-card"><div class="alert-header"><div class="panel-title">ALERT &amp; INSIGHT</div><div class="alert-avg-wrap"><div class="alert-avg-num" id="alert-avg-hari">—</div><div class="alert-avg-lbl">Rata-rata hari<br>Backlog</div><div class="alert-avg-trend" id="alert-avg-trend">↑ —</div></div></div><div id="alert-list" class="alert-list"><div class="no-data">Belum ada data</div></div></div>
     </div>
+    
     <div id="section-ytd" class="content-section">
       <div class="ytd-header">
         <div class="ytd-title-wrap">
@@ -303,7 +170,7 @@
         <div class="chart-header">
           <div>
             <div class="chart-title">TREN REALISASI PER BULAN</div>
-            <div class="chart-sub">Membandingkan Backlog Fertilizer vs Weeding (Luas Ha)</div>
+            <div class="chart-sub">Diagram Batang per Aktivitas dan Garis Tren Grand Total (Luas Ha)</div>
           </div>
         </div>
         <div class="ytd-chart-container">
@@ -316,35 +183,45 @@
           </svg>
 
           <div class="ytd-axis-y">
-            <span>300</span><span>225</span><span>150</span><span>75</span><span>0</span>
+            <span>400</span><span>300</span><span>200</span><span>100</span><span>0</span>
           </div>
 
           <div class="ytd-chart-main" style="z-index: 2;">
-            <svg viewBox="0 0 400 150" class="area-chart" preserveAspectRatio="none">
-               <defs>
-                 <linearGradient id="grad-b1" x1="0" y1="0" x2="0" y2="1">
-                   <stop offset="0%" stop-color="var(--b1)" stop-opacity="0.4"/>
-                   <stop offset="100%" stop-color="var(--b1)" stop-opacity="0"/>
-                 </linearGradient>
-                 <linearGradient id="grad-b3" x1="0" y1="0" x2="0" y2="1">
-                   <stop offset="0%" stop-color="var(--b3)" stop-opacity="0.4"/>
-                   <stop offset="100%" stop-color="var(--b3)" stop-opacity="0"/>
-                 </linearGradient>
-               </defs>
+            <svg viewBox="0 0 400 160" class="area-chart" preserveAspectRatio="none" style="overflow: visible;">
                
-               <path d="M0,150 L0,110 L133,120 L266,95 L400,105 L400,150 Z" fill="url(#grad-b1)" />
-               <path d="M0,110 L133,120 L266,95 L400,105" fill="none" stroke="var(--b1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-               <circle cx="0" cy="110" r="4" fill="var(--bg)" stroke="var(--b1)" stroke-width="2"/>
-               <circle cx="133" cy="120" r="4" fill="var(--bg)" stroke="var(--b1)" stroke-width="2"/>
-               <circle cx="266" cy="95" r="4" fill="var(--bg)" stroke="var(--b1)" stroke-width="2"/>
-               <circle cx="400" cy="105" r="4" fill="var(--bg)" stroke="var(--b1)" stroke-width="2"/>
+               <rect x="30" y="135" width="16" height="15" fill="var(--b1)" rx="2"/>
+               <text x="38" y="132" fill="var(--text2)" font-size="8" font-family="'IBM Plex Mono', monospace" text-anchor="middle">40</text>
+               <rect x="54" y="105" width="16" height="45" fill="var(--b3)" rx="2"/>
+               <text x="62" y="102" fill="var(--text2)" font-size="8" font-family="'IBM Plex Mono', monospace" text-anchor="middle">120</text>
 
-               <path d="M0,150 L0,50 L133,80 L266,30 L400,20 L400,150 Z" fill="url(#grad-b3)" />
-               <path d="M0,50 L133,80 L266,30 L400,20" fill="none" stroke="var(--b3)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-               <circle cx="0" cy="50" r="4" fill="var(--bg)" stroke="var(--b3)" stroke-width="2"/>
-               <circle cx="133" cy="80" r="4" fill="var(--bg)" stroke="var(--b3)" stroke-width="2"/>
-               <circle cx="266" cy="30" r="4" fill="var(--bg)" stroke="var(--b3)" stroke-width="2"/>
-               <circle cx="400" cy="20" r="4" fill="var(--bg)" stroke="var(--b3)" stroke-width="2"/>
+               <rect x="130" y="127.5" width="16" height="22.5" fill="var(--b1)" rx="2"/>
+               <text x="138" y="124.5" fill="var(--text2)" font-size="8" font-family="'IBM Plex Mono', monospace" text-anchor="middle">60</text>
+               <rect x="154" y="93.75" width="16" height="56.25" fill="var(--b3)" rx="2"/>
+               <text x="162" y="90.75" fill="var(--text2)" font-size="8" font-family="'IBM Plex Mono', monospace" text-anchor="middle">150</text>
+
+               <rect x="230" y="131.25" width="16" height="18.75" fill="var(--b1)" rx="2"/>
+               <text x="238" y="128.25" fill="var(--text2)" font-size="8" font-family="'IBM Plex Mono', monospace" text-anchor="middle">50</text>
+               <rect x="254" y="82.5" width="16" height="67.5" fill="var(--b3)" rx="2"/>
+               <text x="262" y="79.5" fill="var(--text2)" font-size="8" font-family="'IBM Plex Mono', monospace" text-anchor="middle">180</text>
+
+               <rect x="330" y="126" width="16" height="24" fill="var(--b1)" rx="2"/>
+               <text x="338" y="123" fill="var(--text2)" font-size="8" font-family="'IBM Plex Mono', monospace" text-anchor="middle">64</text>
+               <rect x="354" y="52.5" width="16" height="97.5" fill="var(--b3)" rx="2"/>
+               <text x="362" y="49.5" fill="var(--text2)" font-size="8" font-family="'IBM Plex Mono', monospace" text-anchor="middle">260</text>
+
+               <path d="M50,90 L150,71 L250,63 L350,28" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+               
+               <circle cx="50" cy="90" r="3.5" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/>
+               <text x="50" y="82" fill="var(--accent)" font-size="10" font-weight="bold" font-family="'IBM Plex Mono', monospace" text-anchor="middle">160</text>
+
+               <circle cx="150" cy="71" r="3.5" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/>
+               <text x="150" y="63" fill="var(--accent)" font-size="10" font-weight="bold" font-family="'IBM Plex Mono', monospace" text-anchor="middle">210</text>
+
+               <circle cx="250" cy="63" r="3.5" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/>
+               <text x="250" y="55" fill="var(--accent)" font-size="10" font-weight="bold" font-family="'IBM Plex Mono', monospace" text-anchor="middle">230</text>
+
+               <circle cx="350" cy="28" r="3.5" fill="var(--bg)" stroke="var(--accent)" stroke-width="2"/>
+               <text x="350" y="20" fill="var(--accent)" font-size="10" font-weight="bold" font-family="'IBM Plex Mono', monospace" text-anchor="middle">324</text>
             </svg>
             
             <div class="ytd-axis-x">
@@ -355,110 +232,15 @@
         <div class="chart-legend">
           <span class="leg-item"><span class="dot" style="background:var(--b1)"></span> Fertilizer</span>
           <span class="leg-item"><span class="dot" style="background:var(--b3)"></span> Weeding</span>
+          <span class="leg-item" style="color: var(--accent);"><span style="display:inline-block; width:12px; height:2px; background:var(--accent); margin-right:4px;"></span> Total YTD</span>
         </div>
       </div>
     </div>
-    </div>
+
+  </div>
   <footer class="footer"><strong>FMIS Dashboard Nilo</strong> · Secure Portal · Data realtime</footer>
 </div>
 
 <script src="script.js"></script>
-
-<script>
-// ===== SCRIPT GANTI TAB NAVIGASI =====
-function switchSection(target, btn) {
-  // Sembunyikan semua section
-  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-  // Hapus class active dari semua tombol nav
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  
-  // Aktifkan section yang dituju dan tombol yang diklik
-  document.getElementById('section-' + target).classList.add('active');
-  btn.classList.add('active');
-}
-
-// ===== SCRIPT FUNGSI EKSPOR PRINT (PDF & BLACK-WHITE) =====
-function exportPDF() {
-  document.body.classList.remove('print-bw-mode');
-  window.print();
-}
-
-function printBWTabel() {
-  document.body.classList.add('print-bw-mode');
-  window.print();
-  setTimeout(() => { document.body.classList.remove('print-bw-mode'); }, 1000);
-}
-
-// ===== KONFIGURASI LOGIN =====
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJwzBiW8CwIIslkX3TOH0dQBWFKjT0RnxK6fyDMHxf_hwEdjJ4uopchg8JLfUk8lDXQA/exec';
-
-let authToken = null;
-let currentUser = null;
-
-window.addEventListener('DOMContentLoaded', () => {
-  const savedToken = localStorage.getItem('fmis_token');
-  const savedUser = localStorage.getItem('fmis_user');
-  if (savedToken && savedUser) {
-    authToken = savedToken;
-    currentUser = savedUser;
-    loadDashboard();
-  }
-});
-
-async function handleLogin() {
-  const username = document.getElementById('loginUsername').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const errorDiv = document.getElementById('loginError');
-  
-  if (!username || !password) {
-    errorDiv.textContent = 'Username dan password harus diisi';
-    errorDiv.style.display = 'block';
-    return;
-  }
-  
-  errorDiv.style.display = 'none';
-  
-  try {
-    const response = await fetch(`${APPS_SCRIPT_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
-    const result = await response.json();
-    
-    if (result.success) {
-      authToken = result.token;
-      currentUser = result.username;
-      localStorage.setItem('fmis_token', result.token);
-      localStorage.setItem('fmis_user', result.username);
-      loadDashboard();
-    } else {
-      errorDiv.textContent = result.error || 'Login gagal';
-      errorDiv.style.display = 'block';
-    }
-  } catch (error) {
-    errorDiv.textContent = 'Koneksi gagal. Periksa jaringan Anda.';
-    errorDiv.style.display = 'block';
-  }
-}
-
-function logout() {
-  localStorage.removeItem('fmis_token');
-  localStorage.removeItem('fmis_user');
-  authToken = null;
-  currentUser = null;
-  document.getElementById('loginContainer').style.display = 'flex';
-  document.getElementById('dashboardWrapper').style.display = 'none';
-}
-
-async function loadDashboard() {
-  document.getElementById('loginContainer').style.display = 'none';
-  document.getElementById('dashboardWrapper').style.display = 'block';
-  if (typeof loadCSVFromAPI === 'function') {
-    await loadCSVFromAPI();
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const logoutBtn = document.getElementById('btn-logout');
-  if (logoutBtn) logoutBtn.addEventListener('click', logout);
-});
-</script>
 </body>
 </html>
